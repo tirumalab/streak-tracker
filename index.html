@@ -98,28 +98,51 @@
   .date-nav button:disabled{opacity:.25;cursor:not-allowed;}
 
   .row-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
-  .workout-toggle{
-    display:flex;align-items:center;justify-content:space-between;
-    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;margin-bottom:18px;
-  }
-  .workout-toggle span{font-size:15px;font-weight:600;}
-  .switch{width:46px;height:26px;border-radius:20px;background:var(--border);position:relative;border:none;flex-shrink:0;transition:.15s ease;}
-  .switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s ease;}
-  .switch.on{background:var(--success,#7ed957);}
-  .switch.on::after{left:23px;}
 
+  /* workout: drag the weight up to the rack */
+  .lift-rig{
+    position:relative;height:126px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:12px;margin-bottom:6px;overflow:hidden;
+  }
+  .rack-bar{position:absolute;top:16px;left:14px;right:14px;height:6px;border-radius:3px;background:var(--border);}
+  .rack-bar::before,.rack-bar::after{content:'';position:absolute;top:-7px;width:6px;height:20px;background:var(--border);border-radius:2px;}
+  .rack-bar::before{left:10px;}
+  .rack-bar::after{right:10px;}
+  .rack-label{position:absolute;top:28px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .weight{
+    position:absolute;left:50%;width:64px;height:64px;margin-left:-32px;top:48px;
+    border-radius:16px;background:var(--surface);border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1;
+    touch-action:none;cursor:grab;user-select:none;box-shadow:0 4px 10px rgba(0,0,0,.25);
+  }
+  .weight.dragging{cursor:grabbing;box-shadow:0 8px 20px rgba(0,0,0,.4);}
+  .weight.snap{transition:top .28s cubic-bezier(.34,1.56,.64,1);}
+  .weight.racked{border-color:var(--p1);background:var(--p1-dim);animation:thud .3s ease;}
+  @keyframes thud{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .lift-status{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:18px;}
+
+  /* steps: slider with a little walker */
   .steps-row{margin-bottom:18px;}
-  .steps-input-wrap{display:flex;align-items:center;gap:10px;}
-  .steps-input-wrap input{
-    flex:1;min-width:0;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
-    border-radius:10px;padding:12px 14px;font-size:20px;font-family:'IBM Plex Mono',monospace;
-    -moz-appearance:textfield;
-  }
-  .steps-input-wrap input::-webkit-outer-spin-button,
-  .steps-input-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .steps-readout{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
+  .steps-readout span:first-child{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:30px;color:var(--p2);}
   .goal-chip{flex-shrink:0;font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .slider-track-wrap{position:relative;padding-top:24px;}
+  .walker{position:absolute;top:-4px;font-size:20px;transform:translateX(-50%);pointer-events:none;}
+  .goal-tick{position:absolute;top:24px;width:2px;height:8px;background:var(--text-faint);transform:translateX(-50%);}
+  .steps-slider{
+    -webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:4px;display:block;
+    background:linear-gradient(to right,var(--p2) 0%,var(--p2) var(--pct,0%),var(--border) var(--pct,0%),var(--border) 100%);
+    outline:none;
+  }
+  .steps-slider::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--p2);
+    border:3px solid var(--surface-2);box-shadow:0 0 0 2px var(--p2);cursor:pointer;
+  }
+  .steps-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--p2);border:3px solid var(--surface-2);cursor:pointer;}
+  .steps-slider::-moz-range-track{height:8px;border-radius:4px;background:var(--border);}
+  .steps-slider::-moz-range-progress{height:8px;border-radius:4px;background:var(--p2);}
 
+  /* meals: salad or fries */
   .meal-section{margin-bottom:20px;}
   .meal-row{
     display:flex;align-items:center;justify-content:space-between;
@@ -128,8 +151,15 @@
   }
   .meal-row:last-child{margin-bottom:0;}
   .meal-row span{font-size:14px;font-weight:600;}
-  .switch.cheat-on{background:var(--cheat);}
-  .switch.cheat-on::after{left:23px;}
+  .food-pick{display:flex;gap:6px;}
+  .food-btn{
+    width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    font-size:19px;display:flex;align-items:center;justify-content:center;
+    opacity:.4;transform:scale(.9);transition:transform .12s ease,opacity .12s ease,border-color .12s ease,background .12s ease;
+  }
+  .food-btn.sel{opacity:1;transform:scale(1);border-color:#7ed957;background:rgba(126,217,87,.14);}
+  .food-btn.junk.sel{border-color:var(--cheat);background:rgba(255,200,77,.14);}
+  .food-btn:active{transform:scale(.85);}
 
   .save-row{display:flex;align-items:center;gap:12px;}
   .save-row .primary-btn{margin-top:0;}
@@ -181,6 +211,26 @@
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
 
+  .confetti-piece{
+    position:fixed;top:30%;width:8px;height:14px;border-radius:2px;pointer-events:none;z-index:60;
+    animation-name:confetti-fall;animation-timing-function:cubic-bezier(.15,.8,.4,1);animation-fill-mode:forwards;
+  }
+  @keyframes confetti-fall{
+    0%{transform:translate(0,0) rotate(0deg);opacity:1;}
+    100%{transform:translate(var(--dx),60vh) rotate(var(--rot));opacity:0;}
+  }
+  .sticker-pop{
+    position:fixed;top:36%;left:50%;font-size:88px;z-index:61;pointer-events:none;
+    animation:sticker-bounce 1.3s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes sticker-bounce{
+    0%{transform:translate(-50%,-50%) scale(.2) rotate(-15deg);opacity:0;}
+    30%{transform:translate(-50%,-50%) scale(1.15) rotate(6deg);opacity:1;}
+    50%{transform:translate(-50%,-50%) scale(.95) rotate(-4deg);opacity:1;}
+    75%{transform:translate(-50%,-50%) scale(1.05) rotate(0deg);opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:0;}
+  }
+
   @media (max-width:420px){
     .wordmark{font-size:36px;}
     .score-num{font-size:26px;}
@@ -202,6 +252,7 @@ const ROW_ID = 'shared';
 // ------------------------------------------------------------------------
 
 const STEP_GOAL = 10000;
+const STEPS_SLIDER_MAX = 15000;
 const WORKOUT_GOAL = 4; // days/week floor of the 4-5 target
 
 let appData = null;
@@ -380,33 +431,34 @@ function renderApp(){
         </div>
       </div>
 
-      <div class="workout-toggle">
-        <span>Worked out</span>
-        <button class="switch ${e.workout?'on':''}" id="workoutSwitch" aria-pressed="${e.workout}"></button>
+      <div class="row-label">Workout</div>
+      <div class="lift-rig" id="liftRig">
+        <div class="rack-bar"></div>
+        <div class="rack-label">RACK IT</div>
+        <div class="weight" id="weightEl">🏋️</div>
       </div>
+      <div class="lift-status" id="liftStatus">${e.workout ? 'Racked — nice.' : 'Drag it up to the rack, or tap it'}</div>
 
       <div class="steps-row">
         <div class="row-label">Steps</div>
-        <div class="steps-input-wrap">
-          <input type="number" min="0" step="500" id="stepsInput" placeholder="0" value="${e.steps || ''}"/>
-          <span class="goal-chip">goal 10k</span>
+        <div class="steps-readout"><span id="stepsVal">0</span><span class="goal-chip">goal 10k</span></div>
+        <div class="slider-track-wrap">
+          <div class="walker" id="walkerEl">🚶</div>
+          <div class="goal-tick" id="goalTick"></div>
+          <input type="range" min="0" max="${STEPS_SLIDER_MAX}" step="250" value="${e.steps || 0}" id="stepsSlider" class="steps-slider"/>
         </div>
       </div>
 
       <div class="meal-section">
-        <div class="row-label">Meals — mark any that were cheat meals</div>
+        <div class="row-label">Meals — salad or fries?</div>
+        ${['breakfast','lunch','dinner'].map(m=>`
         <div class="meal-row">
-          <span>Breakfast</span>
-          <button class="switch ${mealsSafe.breakfast?'cheat-on':''}" data-meal="breakfast" aria-pressed="${!!mealsSafe.breakfast}"></button>
-        </div>
-        <div class="meal-row">
-          <span>Lunch</span>
-          <button class="switch ${mealsSafe.lunch?'cheat-on':''}" data-meal="lunch" aria-pressed="${!!mealsSafe.lunch}"></button>
-        </div>
-        <div class="meal-row">
-          <span>Dinner</span>
-          <button class="switch ${mealsSafe.dinner?'cheat-on':''}" data-meal="dinner" aria-pressed="${!!mealsSafe.dinner}"></button>
-        </div>
+          <span>${m[0].toUpperCase()+m.slice(1)}</span>
+          <div class="food-pick">
+            <button type="button" class="food-btn ${!mealsSafe[m]?'sel':''}" data-meal="${m}" data-val="0" aria-label="${m} was healthy">🥗</button>
+            <button type="button" class="food-btn junk ${mealsSafe[m]?'sel':''}" data-meal="${m}" data-val="1" aria-label="${m} was a cheat meal">🍟</button>
+          </div>
+        </div>`).join('')}
       </div>
 
       <div class="save-row">
@@ -433,31 +485,130 @@ function renderApp(){
 
   let localWorkout = e.workout;
   let localMeals = {...mealsSafe};
-  const sw = document.getElementById('workoutSwitch');
-  sw.onclick = ()=>{ localWorkout = !localWorkout; sw.classList.toggle('on', localWorkout); sw.setAttribute('aria-pressed', localWorkout); };
+  const liftStatus = document.getElementById('liftStatus');
+  setupLift(document.getElementById('liftRig'), document.getElementById('weightEl'), localWorkout, (racked)=>{
+    localWorkout = racked;
+    liftStatus.textContent = racked ? 'Racked — nice.' : "Drag it up to the rack, or tap it";
+  });
 
-  document.querySelectorAll('.meal-row .switch').forEach(btn=>{
+  document.querySelectorAll('.food-btn').forEach(btn=>{
     btn.onclick = ()=>{
-      const key = btn.dataset.meal;
-      localMeals[key] = !localMeals[key];
-      btn.classList.toggle('cheat-on', localMeals[key]);
-      btn.setAttribute('aria-pressed', localMeals[key]);
+      const meal = btn.dataset.meal, val = btn.dataset.val === '1';
+      localMeals[meal] = val;
+      document.querySelectorAll(`.food-btn[data-meal="${meal}"]`).forEach(b=>{
+        b.classList.toggle('sel', b.dataset.val === (val ? '1' : '0'));
+      });
     };
   });
 
+  const slider = document.getElementById('stepsSlider');
+  let localSteps = Number(slider.value);
+  setupStepsSlider(slider);
+
   document.getElementById('saveBtn').onclick = async (ev)=>{
     const btn = ev.currentTarget;
-    const steps = Math.max(0, parseInt(document.getElementById('stepsInput').value || '0', 10) || 0);
-    setEntry(user, selectedDate, { workout: localWorkout, steps, meals: localMeals, note: '' });
+    localSteps = Number(slider.value);
+    setEntry(user, selectedDate, { workout: localWorkout, steps: localSteps, meals: localMeals, note: '' });
     btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Saving…';
     try{
       await saveData();
-      showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
+      const goalMet = localWorkout && localSteps >= STEP_GOAL && !localMeals.breakfast && !localMeals.lunch && !localMeals.dinner;
+      if(goalMet){
+        celebrate();
+        showToast(`🔥 Perfect day, ${user}!`);
+      }else{
+        showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
+      }
     }catch(err){
       showToast('Save failed — try again');
     }
     renderApp();
   };
+}
+
+// ---------- workout: drag the weight onto the rack ----------
+function setupLift(rig, weightEl, initialRacked, onChange){
+  const RACKED_TOP = 20;
+  let racked = initialRacked;
+  let bottomTop = rig.clientHeight - weightEl.offsetHeight - 14;
+  function setTop(top, snap){
+    weightEl.classList.toggle('snap', !!snap);
+    weightEl.style.top = top + 'px';
+  }
+  setTop(racked ? RACKED_TOP : bottomTop, false);
+  weightEl.classList.toggle('racked', racked);
+
+  let dragging = false, startY = 0, startTop = 0;
+  weightEl.addEventListener('pointerdown', (ev)=>{
+    dragging = true;
+    weightEl.setPointerCapture(ev.pointerId);
+    weightEl.classList.add('dragging');
+    weightEl.classList.remove('snap');
+    startY = ev.clientY;
+    startTop = parseFloat(weightEl.style.top);
+    bottomTop = rig.clientHeight - weightEl.offsetHeight - 14;
+  });
+  weightEl.addEventListener('pointermove', (ev)=>{
+    if(!dragging) return;
+    const top = Math.max(RACKED_TOP, Math.min(bottomTop, startTop + (ev.clientY - startY)));
+    setTop(top, false);
+  });
+  function endDrag(ev){
+    if(!dragging) return;
+    dragging = false;
+    weightEl.classList.remove('dragging');
+    const moved = Math.abs(ev.clientY - startY);
+    if(moved < 6){
+      racked = !racked;
+    }else{
+      const threshold = RACKED_TOP + (bottomTop - RACKED_TOP) * 0.45;
+      racked = parseFloat(weightEl.style.top) < threshold;
+    }
+    setTop(racked ? RACKED_TOP : bottomTop, true);
+    weightEl.classList.toggle('racked', racked);
+    onChange(racked);
+  }
+  weightEl.addEventListener('pointerup', endDrag);
+  weightEl.addEventListener('pointercancel', endDrag);
+}
+
+// ---------- steps: slider + walking figure ----------
+function setupStepsSlider(slider){
+  const stepsVal = document.getElementById('stepsVal');
+  const walker = document.getElementById('walkerEl');
+  const goalTick = document.getElementById('goalTick');
+  goalTick.style.left = (STEP_GOAL / STEPS_SLIDER_MAX * 100) + '%';
+  function update(){
+    const pct = (slider.value / slider.max) * 100;
+    slider.style.setProperty('--pct', pct + '%');
+    walker.style.left = pct + '%';
+    stepsVal.textContent = fmtSteps(Number(slider.value)) + (Number(slider.value) >= Number(slider.max) ? '+' : '');
+  }
+  slider.oninput = update;
+  update();
+}
+
+// ---------- celebration ----------
+function celebrate(){
+  const colors = ['#ff5c3d','#43c9dd','#ffc84d','#7ed957','#eef0f2'];
+  for(let i=0;i<28;i++){
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = (45 + Math.random()*10) + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty('--dx', (Math.random()*260-130) + 'px');
+    p.style.setProperty('--rot', (Math.random()*720-360) + 'deg');
+    p.style.animationDuration = (0.9 + Math.random()*0.6) + 's';
+    p.style.animationDelay = (Math.random()*0.15) + 's';
+    document.body.appendChild(p);
+    p.addEventListener('animationend', ()=>p.remove());
+  }
+  const stickers = ['🔥','🎉','💪','⭐','🏆'];
+  const s = document.createElement('div');
+  s.className = 'sticker-pop';
+  s.textContent = stickers[Math.floor(Math.random()*stickers.length)];
+  document.body.appendChild(s);
+  s.addEventListener('animationend', ()=>s.remove());
 }
 
 function renderScoreboard(wkStart, today){
