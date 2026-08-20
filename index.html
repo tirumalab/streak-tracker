@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STREAK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171a;
+    --surface:#1c2024;
+    --surface-2:#23282d;
+    --border:#31373d;
+    --text:#eef0f2;
+    --text-muted:#8b9198;
+    --text-faint:#575e64;
+    --p1:#ff5c3d;
+    --p1-dim:rgba(255,92,61,.14);
+    --p2:#43c9dd;
+    --p2-dim:rgba(67,201,221,.14);
+    --cheat:#ffc84d;
+    --off:#ff5c5c;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  #root{max-width:720px;margin:0 auto;padding:24px 18px 60px;}
+  .wordmark{
+    font-family:'Big Shoulders Display',sans-serif;
+    font-weight:900;
+    font-size:44px;
+    letter-spacing:1px;
+    line-height:1;
+    margin:0;
+    background:linear-gradient(90deg,var(--p1),var(--p2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .tagline{
+    color:var(--text-muted);
+    font-size:13px;
+    margin:4px 0 28px;
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.5px;
+  }
+  button{font-family:inherit;cursor:pointer;}
+  input:focus-visible,button:focus-visible{outline:2px solid var(--p2);outline-offset:2px;}
+
+  /* setup */
+  .setup-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 24px;
+  }
+  .setup-card h2{margin:0 0 6px;font-size:19px;}
+  .setup-card p{color:var(--text-muted);font-size:14px;margin:0 0 22px;line-height:1.5;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;}
+  .field input{
+    width:100%;background:var(--surface-2);border:1px solid var(--border);
+    color:var(--text);border-radius:10px;padding:12px 14px;font-size:15px;
+  }
+  .primary-btn{
+    background:var(--p1);color:#14171a;border:none;border-radius:10px;
+    padding:13px 20px;font-size:15px;font-weight:700;width:100%;margin-top:6px;
+    transition:transform .1s ease, opacity .15s ease;
+  }
+  .primary-btn:active{transform:scale(.98);}
+  .primary-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  /* tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:20px;}
+  .tab{
+    flex:1;padding:11px 10px;border-radius:10px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text-muted);font-size:14px;font-weight:600;
+    text-align:center;transition:.15s ease;
+  }
+  .tab.active[data-p="0"]{background:var(--p1-dim);border-color:var(--p1);color:var(--p1);}
+  .tab.active[data-p="1"]{background:var(--p2-dim);border-color:var(--p2);color:var(--p2);}
+
+  /* today card */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;}
+  .card-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+  .card-head h3{margin:0;font-size:16px;}
+  .date-nav{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);}
+  .date-nav button{background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;width:24px;height:24px;font-size:13px;line-height:1;}
+  .date-nav button:disabled{opacity:.25;cursor:not-allowed;}
+
+  .row-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+  .workout-toggle{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:14px 16px;margin-bottom:18px;
+  }
+  .workout-toggle span{font-size:15px;font-weight:600;}
+  .switch{width:46px;height:26px;border-radius:20px;background:var(--border);position:relative;border:none;flex-shrink:0;transition:.15s ease;}
+  .switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s ease;}
+  .switch.on{background:var(--success,#7ed957);}
+  .switch.on::after{left:23px;}
+
+  .steps-row{margin-bottom:18px;}
+  .steps-input-wrap{display:flex;align-items:center;gap:10px;}
+  .steps-input-wrap input{
+    flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:12px 14px;font-size:20px;font-family:'IBM Plex Mono',monospace;
+    -moz-appearance:textfield;
+  }
+  .steps-input-wrap input::-webkit-outer-spin-button,
+  .steps-input-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .goal-chip{font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+
+  .meal-section{margin-bottom:20px;}
+  .meal-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:12px 16px;margin-bottom:8px;
+  }
+  .meal-row:last-child{margin-bottom:0;}
+  .meal-row span{font-size:14px;font-weight:600;}
+  .switch.cheat-on{background:var(--cheat);}
+  .switch.cheat-on::after{left:23px;}
+
+  .save-row{display:flex;align-items:center;gap:12px;}
+  .save-row .primary-btn{margin-top:0;}
+  .save-note{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+
+  /* scoreboard */
+  .score-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
+  .score-head h3{margin:0;font-size:16px;}
+  .week-label{font-size:12px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
+  .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .score-col{background:var(--surface-2);border-radius:12px;padding:16px;border:1px solid var(--border);}
+  .score-col.p0{border-top:3px solid var(--p1);}
+  .score-col.p1{border-top:3px solid var(--p2);}
+  .score-name{font-size:13px;font-weight:700;margin-bottom:14px;}
+  .score-num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:34px;line-height:1;}
+  .score-num small{font-family:'Inter';font-weight:600;font-size:14px;color:var(--text-muted);}
+  .score-stat{margin-bottom:14px;}
+  .score-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+  .goal-met{color:#7ed957;}
+
+  .heatrow{display:flex;gap:5px;margin-top:14px;}
+  .heat-cell{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .heat-day-label{font-size:9px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .heat-box{width:100%;aspect-ratio:1;border-radius:6px;border:1.5px solid var(--border);position:relative;}
+  .heat-box.done.p0{background:var(--p1);border-color:var(--p1);}
+  .heat-box.done.p1{background:var(--p2);border-color:var(--p2);}
+  .heat-box.future{opacity:.25;}
+  .meal-dots{display:flex;gap:3px;justify-content:center;margin-top:4px;}
+  .mdot{width:5px;height:5px;border-radius:50%;background:transparent;border:1px solid var(--border);}
+  .mdot.cheat{background:var(--cheat);border-color:var(--cheat);}
+  .heat-steps{font-size:8px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+  .run-row{display:flex;align-items:center;justify-content:space-around;margin-top:2px;}
+  .run-item{text-align:center;flex:1;}
+  .run-num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:28px;line-height:1;}
+  .run-label{font-size:11px;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;}
+  .run-div{width:1px;height:34px;background:var(--border);}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .loading{color:var(--text-muted);font-family:'IBM Plex Mono',monospace;font-size:13px;padding:40px 0;text-align:center;}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    padding:10px 18px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  @media (max-width:420px){
+    .wordmark{font-size:36px;}
+    .score-num{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">loading&hellip;</div></div>
+
+<script>
+// --- Backend config ---------------------------------------------------
+// This app used to run inside a Claude.ai artifact, which gives free
+// built-in storage via `window.storage`. A plain GitHub Pages site has
+// no backend of its own, so this now talks to a free Supabase project
+// instead. See README.md for the 2-minute setup (no credit card needed).
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';       // e.g. https://xxxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const ROW_ID = 'shared';
+// ------------------------------------------------------------------------
+
+const STEP_GOAL = 10000;
+const WORKOUT_GOAL = 4; // days/week floor of the 4-5 target
+
+let appData = null;
+let currentUserIdx = 0;
+let selectedDate = new Date();
+
+// ---------- date helpers ----------
+function pad(n){ return String(n).padStart(2,'0'); }
+function dateKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function stripTime(d){ const c = new Date(d); c.setHours(0,0,0,0); return c; }
+function startOfWeek(d){
+  const c = stripTime(d);
+  const day = c.getDay(); // 0 Sun .. 6 Sat
+  const diff = (day + 6) % 7; // days since Monday
+  c.setDate(c.getDate() - diff);
+  return c;
+}
+function addDays(d, n){ const c = new Date(d); c.setDate(c.getDate()+n); return c; }
+function weekDates(start){ return Array.from({length:7}, (_,i)=>addDays(start,i)); }
+const DAY_LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function fmtWeekLabel(start){
+  const end = addDays(start,6);
+  const opts = {month:'short', day:'numeric'};
+  return `${start.toLocaleDateString('en-US',opts)} – ${end.toLocaleDateString('en-US',opts)}`;
+}
+function fmtSteps(n){
+  if(n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'k';
+  return String(n);
+}
+
+// ---------- storage (Supabase REST) ----------
+function sbHeaders(extra){
+  return Object.assign({
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+  }, extra || {});
+}
+async function loadData(){
+  try{
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/streak_data?id=eq.${ROW_ID}&select=data`,
+      { headers: sbHeaders() }
+    );
+    if(!res.ok) return null;
+    const rows = await res.json();
+    if(!rows.length) return null; // no row yet -> needs setup
+    return rows[0].data;
+  }catch(e){
+    return null;
+  }
+}
+async function saveData(){
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/streak_data?on_conflict=id`,
+    {
+      method: 'POST',
+      headers: sbHeaders({
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates'
+      }),
+      body: JSON.stringify({ id: ROW_ID, data: appData, updated_at: new Date().toISOString() })
+    }
+  );
+  if(!res.ok) throw new Error('save failed: ' + res.status);
+}
+function entryFor(userName, d){
+  return appData.entries[`${userName}|${dateKey(d)}`] || null;
+}
+function setEntry(userName, d, entry){
+  appData.entries[`${userName}|${dateKey(d)}`] = entry;
+}
+
+// ---------- stats ----------
+function weekStats(userName, weekStart, today){
+  const days = weekDates(weekStart);
+  let workouts=0, stepsSum=0, stepsDays=0, cheat=0;
+  const cells = days.map(d=>{
+    const isFuture = stripTime(d) > stripTime(today);
+    const e = isFuture ? null : entryFor(userName, d);
+    if(e){
+      if(e.workout) workouts++;
+      if(typeof e.steps === 'number' && e.steps>0){ stepsSum += e.steps; stepsDays++; }
+      if(e.meals){
+        if(e.meals.breakfast) cheat++;
+        if(e.meals.lunch) cheat++;
+        if(e.meals.dinner) cheat++;
+      }
+    }
+    return {date:d, entry:e, isFuture};
+  });
+  return {
+    workouts, stepsAvg: stepsDays ? Math.round(stepsSum/stepsDays) : 0,
+    cheat, cells
+  };
+}
+function currentRun(userName, today){
+  // consecutive completed weeks (before this week) hitting workout goal
+  let ws = addDays(startOfWeek(today), -7);
+  const firstStats = weekStats(userName, ws, addDays(ws,6));
+  const hasData = firstStats.cells.some(c=>c.entry);
+  if(!hasData) return {run:0, hasData:false};
+  let run = 0;
+  while(true){
+    const stats = weekStats(userName, ws, addDays(ws,6));
+    const hasAnyData = stats.cells.some(c=>c.entry);
+    if(!hasAnyData) break;
+    if(stats.workouts >= WORKOUT_GOAL){ run++; ws = addDays(ws,-7); }
+    else break;
+  }
+  return {run, hasData:true};
+}
+
+// ---------- render ----------
+const root = document.getElementById('root');
+let toastTimer = null;
+function showToast(msg){
+  let t = document.querySelector('.toast');
+  if(!t){ t = document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function renderSetup(){
+  root.innerHTML = `
+    <h1 class="wordmark">STREAK</h1>
+    <p class="tagline">// a shared log for two people chasing the same habits</p>
+    <div class="setup-card">
+      <h2>Set up your pair</h2>
+      <p>One shared board, two names. You'll each pick your own name each time you log &mdash; no password, just for two people who trust each other.</p>
+      <div class="field"><label>Your name</label><input id="u1" placeholder="e.g. Alex" maxlength="20"/></div>
+      <div class="field"><label>Their name</label><input id="u2" placeholder="e.g. Sam" maxlength="20"/></div>
+      <button class="primary-btn" id="setupBtn">Create shared board</button>
+    </div>`;
+  const u1 = document.getElementById('u1'), u2 = document.getElementById('u2'), btn = document.getElementById('setupBtn');
+  btn.onclick = async ()=>{
+    const n1 = u1.value.trim(), n2 = u2.value.trim();
+    if(!n1 || !n2 || n1.toLowerCase()===n2.toLowerCase()) return;
+    btn.disabled = true; btn.textContent = 'Setting up…';
+    appData = { users:[n1,n2], entries:{} };
+    await saveData();
+    currentUserIdx = 0;
+    renderApp();
+  };
+}
+
+function renderApp(){
+  const today = stripTime(new Date());
+  const wkStart = startOfWeek(today);
+  const minDate = wkStart, maxDate = today;
+  const user = appData.users[currentUserIdx];
+  const e = entryFor(user, selectedDate) || {workout:false, steps:'', meals:{breakfast:false,lunch:false,dinner:false}, note:''};
+  const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
+
+  const isToday = dateKey(selectedDate) === dateKey(today);
+  const dLabel = isToday ? 'Today' : selectedDate.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
+  const prevDisabled = stripTime(selectedDate) <= minDate;
+  const nextDisabled = stripTime(selectedDate) >= maxDate;
+
+  root.innerHTML = `
+    <h1 class="wordmark">STREAK</h1>
+    <p class="tagline">// week of ${fmtWeekLabel(wkStart)}</p>
+
+    <div class="tabs">
+      ${appData.users.map((n,i)=>`<button class="tab ${i===currentUserIdx?'active':''}" data-p="${i}" data-idx="${i}">${n}</button>`).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h3>Log for ${user}</h3>
+        <div class="date-nav">
+          <button id="prevDay" ${prevDisabled?'disabled':''}>&larr;</button>
+          <span>${dLabel}</span>
+          <button id="nextDay" ${nextDisabled?'disabled':''}>&rarr;</button>
+        </div>
+      </div>
+
+      <div class="workout-toggle">
+        <span>Worked out</span>
+        <button class="switch ${e.workout?'on':''}" id="workoutSwitch" aria-pressed="${e.workout}"></button>
+      </div>
+
+      <div class="steps-row">
+        <div class="row-label">Steps</div>
+        <div class="steps-input-wrap">
+          <input type="number" min="0" step="500" id="stepsInput" placeholder="0" value="${e.steps || ''}"/>
+          <span class="goal-chip">goal 10k</span>
+        </div>
+      </div>
+
+      <div class="meal-section">
+        <div class="row-label">Meals — mark any that were cheat meals</div>
+        <div class="meal-row">
+          <span>Breakfast</span>
+          <button class="switch ${mealsSafe.breakfast?'cheat-on':''}" data-meal="breakfast" aria-pressed="${!!mealsSafe.breakfast}"></button>
+        </div>
+        <div class="meal-row">
+          <span>Lunch</span>
+          <button class="switch ${mealsSafe.lunch?'cheat-on':''}" data-meal="lunch" aria-pressed="${!!mealsSafe.lunch}"></button>
+        </div>
+        <div class="meal-row">
+          <span>Dinner</span>
+          <button class="switch ${mealsSafe.dinner?'cheat-on':''}" data-meal="dinner" aria-pressed="${!!mealsSafe.dinner}"></button>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button class="primary-btn" id="saveBtn">Save ${dLabel.toLowerCase()}</button>
+      </div>
+    </div>
+
+    ${renderScoreboard(wkStart, today)}
+    ${renderRun(today)}
+
+    <div class="legend">
+      <span><i style="background:var(--p1)"></i>${appData.users[0]}</span>
+      <span><i style="background:var(--p2)"></i>${appData.users[1]}</span>
+      <span><i style="background:var(--cheat)"></i>cheat meal (dot = breakfast/lunch/dinner)</span>
+    </div>
+  `;
+
+  // wire up events
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.onclick = ()=>{ currentUserIdx = Number(btn.dataset.idx); renderApp(); };
+  });
+  document.getElementById('prevDay').onclick = ()=>{ if(!prevDisabled){ selectedDate = addDays(selectedDate,-1); renderApp(); } };
+  document.getElementById('nextDay').onclick = ()=>{ if(!nextDisabled){ selectedDate = addDays(selectedDate,1); renderApp(); } };
+
+  let localWorkout = e.workout;
+  let localMeals = {...mealsSafe};
+  const sw = document.getElementById('workoutSwitch');
+  sw.onclick = ()=>{ localWorkout = !localWorkout; sw.classList.toggle('on', localWorkout); sw.setAttribute('aria-pressed', localWorkout); };
+
+  document.querySelectorAll('.meal-row .switch').forEach(btn=>{
+    btn.onclick = ()=>{
+      const key = btn.dataset.meal;
+      localMeals[key] = !localMeals[key];
+      btn.classList.toggle('cheat-on', localMeals[key]);
+      btn.setAttribute('aria-pressed', localMeals[key]);
+    };
+  });
+
+  document.getElementById('saveBtn').onclick = async (ev)=>{
+    const btn = ev.currentTarget;
+    const steps = Math.max(0, parseInt(document.getElementById('stepsInput').value || '0', 10) || 0);
+    setEntry(user, selectedDate, { workout: localWorkout, steps, meals: localMeals, note: '' });
+    btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Saving…';
+    try{
+      await saveData();
+      showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
+    }catch(err){
+      showToast('Save failed — try again');
+    }
+    renderApp();
+  };
+}
+
+function renderScoreboard(wkStart, today){
+  return `
+    <div class="card">
+      <div class="score-head">
+        <h3>This week</h3>
+        <span class="week-label">Mon&ndash;Sun</span>
+      </div>
+      <div class="score-grid">
+        ${appData.users.map((u,i)=>renderScoreCol(u,i,wkStart,today)).join('')}
+      </div>
+    </div>`;
+}
+
+function renderScoreCol(userName, idx, wkStart, today){
+  const s = weekStats(userName, wkStart, today);
+  const goalMet = s.workouts >= WORKOUT_GOAL;
+  const pClass = idx===0?'p0':'p1';
+  return `
+    <div class="score-col ${pClass}">
+      <div class="score-name">${userName}</div>
+      <div class="score-stat">
+        <div class="score-num ${goalMet?'goal-met':''}">${s.workouts}<small> / 5</small></div>
+        <div class="score-stat-label">workouts</div>
+      </div>
+      <div class="score-stat">
+        <div class="score-num ${s.stepsAvg>=STEP_GOAL?'goal-met':''}">${fmtSteps(s.stepsAvg)}</div>
+        <div class="score-stat-label">avg steps / day</div>
+      </div>
+      <div class="score-stat" style="margin-bottom:0;">
+        <div class="score-num">${s.cheat}<small> / 21</small></div>
+        <div class="score-stat-label">cheat meals</div>
+      </div>
+      <div class="heatrow">
+        ${s.cells.map((c,i)=>{
+          const m = c.entry && c.entry.meals ? c.entry.meals : null;
+          return `
+          <div class="heat-cell">
+            <div class="heat-day-label">${DAY_LABELS[i][0]}</div>
+            <div class="heat-box ${c.entry && c.entry.workout ? 'done '+pClass : ''} ${c.isFuture?'future':''}"></div>
+            <div class="meal-dots">
+              <span class="mdot ${m && m.breakfast ? 'cheat':''}" title="Breakfast"></span>
+              <span class="mdot ${m && m.lunch ? 'cheat':''}" title="Lunch"></span>
+              <span class="mdot ${m && m.dinner ? 'cheat':''}" title="Dinner"></span>
+            </div>
+            <div class="heat-steps">${c.entry && c.entry.steps ? fmtSteps(c.entry.steps) : '&middot;'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderRun(today){
+  const info = appData.users.map(u=>currentRun(u, today));
+  return `
+    <div class="card">
+      <div class="score-head">
+        <h3>Goal streak</h3>
+        <span class="week-label">4+ workouts, back-to-back weeks</span>
+      </div>
+      <div class="run-row">
+        ${appData.users.map((u,i)=>`
+          <div class="run-item">
+            <div class="run-num" style="color:${i===0?'var(--p1)':'var(--p2)'}">${info[i].hasData ? info[i].run : '&ndash;'}</div>
+            <div class="run-label">${info[i].hasData ? `${u}'s streak` : `${u} \u2014 no data yet`}</div>
+          </div>
+          ${i===0?'<div class="run-div"></div>':''}
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+// ---------- boot ----------
+(async function boot(){
+  if(SUPABASE_URL.includes('YOUR_SUPABASE') || SUPABASE_ANON_KEY.includes('YOUR_SUPABASE')){
+    root.innerHTML = `
+      <h1 class="wordmark">STREAK</h1>
+      <div class="setup-card">
+        <h2>One step left</h2>
+        <p>Add your Supabase project URL and anon key near the top of index.html, then reload. See README.md for the 2-minute setup.</p>
+      </div>`;
+    return;
+  }
+  appData = await loadData();
+  if(!appData){ renderSetup(); }
+  else{ renderApp(); }
+})();
+</script>
+</body>
+</html>
