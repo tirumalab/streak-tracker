@@ -99,48 +99,78 @@
 
   .row-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
 
-  /* workout: drag the weight up to the rack */
-  .lift-rig{
-    position:relative;height:126px;background:var(--surface-2);border:1px solid var(--border);
-    border-radius:12px;margin-bottom:6px;overflow:hidden;
+  /* workout: press & hold to charge, then slam */
+  .power-card{
+    display:flex;align-items:center;justify-content:center;padding:16px 0;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    margin-bottom:6px;
   }
-  .rack-bar{position:absolute;top:16px;left:14px;right:14px;height:6px;border-radius:3px;background:var(--border);}
-  .rack-bar::before,.rack-bar::after{content:'';position:absolute;top:-7px;width:6px;height:20px;background:var(--border);border-radius:2px;}
-  .rack-bar::before{left:10px;}
-  .rack-bar::after{right:10px;}
-  .rack-label{position:absolute;top:28px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:1.5px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
-  .weight{
-    position:absolute;left:50%;width:64px;height:64px;margin-left:-32px;top:48px;
-    border-radius:16px;background:var(--surface);border:2px solid var(--border);
-    display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1;
-    touch-action:none;cursor:grab;user-select:none;box-shadow:0 4px 10px rgba(0,0,0,.25);
+  .power-btn{
+    position:relative;width:92px;height:92px;border-radius:50%;padding:0;
+    background:var(--surface);border:2px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
   }
-  .weight.dragging{cursor:grabbing;box-shadow:0 8px 20px rgba(0,0,0,.4);}
-  .weight.snap{transition:top .28s cubic-bezier(.34,1.56,.64,1);}
-  .weight.racked{border-color:var(--p1);background:var(--p1-dim);animation:thud .3s ease;}
-  @keyframes thud{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .power-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+  .power-ring-bg{fill:none;stroke:var(--border);stroke-width:6;}
+  .power-ring-fg{
+    fill:none;stroke:var(--p1);stroke-width:6;stroke-linecap:round;
+    stroke-dasharray:276;stroke-dashoffset:276;transition:stroke-dashoffset .7s linear;
+  }
+  .power-btn.charging .power-ring-fg{stroke-dashoffset:0;}
+  .power-btn.done .power-ring-fg{stroke-dashoffset:0;}
+  .power-emoji{font-size:36px;line-height:1;transition:transform .15s ease;}
+  .power-btn.charging .power-emoji{transform:scale(1.15);}
+  .power-btn.done{border-color:var(--p1);background:var(--p1-dim);}
+  .power-btn.slam .power-emoji{animation:power-slam .38s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes power-slam{
+    0%{transform:scale(1)} 30%{transform:scale(.7,1.3)} 55%{transform:scale(1.3,.75)}
+    80%{transform:scale(.95,1.05)} 100%{transform:scale(1)}
+  }
+  .power-stamp{
+    position:absolute;inset:8px;display:flex;align-items:center;justify-content:center;
+    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:14px;letter-spacing:1px;
+    color:var(--p1);border:3px solid var(--p1);border-radius:8px;background:var(--surface);
+    transform:scale(0) rotate(-16deg);opacity:0;pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;
+  }
+  .power-btn.done .power-stamp{animation:power-stamp-in .3s ease-out .15s forwards;}
+  @keyframes power-stamp-in{
+    0%{transform:scale(2) rotate(-16deg);opacity:0;}
+    60%{transform:scale(.85) rotate(-12deg);opacity:1;}
+    100%{transform:scale(1) rotate(-12deg);opacity:1;}
+  }
+  .power-card.shake{animation:power-shake .4s ease;}
+  @keyframes power-shake{
+    10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)}
+    30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)}
+  }
   .lift-status{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:18px;}
 
-  /* steps: slider with a little walker */
+  /* steps: draggable run track */
   .steps-row{margin-bottom:18px;}
   .steps-readout{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
   .steps-readout span:first-child{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:30px;color:var(--p2);}
   .goal-chip{flex-shrink:0;font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
-  .slider-track-wrap{position:relative;padding-top:24px;}
-  .walker{position:absolute;top:-4px;font-size:20px;transform:translateX(-50%);pointer-events:none;}
-  .goal-tick{position:absolute;top:24px;width:2px;height:8px;background:var(--text-faint);transform:translateX(-50%);}
-  .steps-slider{
-    -webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:4px;display:block;
-    background:linear-gradient(to right,var(--p2) 0%,var(--p2) var(--pct,0%),var(--border) var(--pct,0%),var(--border) 100%);
-    outline:none;
+  .run-track{
+    position:relative;height:54px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:27px;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;
   }
-  .steps-slider::-webkit-slider-thumb{
-    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--p2);
-    border:3px solid var(--surface-2);box-shadow:0 0 0 2px var(--p2);cursor:pointer;
+  .run-track-fill{
+    position:absolute;left:0;top:0;bottom:0;width:0%;
+    background:linear-gradient(90deg,var(--p2-dim),var(--p2));
   }
-  .steps-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--p2);border:3px solid var(--surface-2);cursor:pointer;}
-  .steps-slider::-moz-range-track{height:8px;border-radius:4px;background:var(--border);}
-  .steps-slider::-moz-range-progress{height:8px;border-radius:4px;background:var(--p2);}
+  .run-goal-mark{position:absolute;top:0;bottom:0;width:2px;background:var(--text-faint);}
+  .run-figure{
+    position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);font-size:26px;pointer-events:none;
+  }
+  .run-figure.bump{animation:run-bump .18s ease;}
+  @keyframes run-bump{
+    0%{transform:translate(-50%,-50%) scale(1)}
+    50%{transform:translate(-50%,-50%) scale(1.25) translateY(-4px)}
+    100%{transform:translate(-50%,-50%) scale(1)}
+  }
+  .run-hint{font-size:11px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:6px;}
 
   /* meals: salad or fries */
   .meal-section{margin-bottom:20px;}
@@ -432,21 +462,27 @@ function renderApp(){
       </div>
 
       <div class="row-label">Workout</div>
-      <div class="lift-rig" id="liftRig">
-        <div class="rack-bar"></div>
-        <div class="rack-label">RACK IT</div>
-        <div class="weight" id="weightEl">🏋️</div>
+      <div class="power-card" id="powerCard">
+        <button type="button" class="power-btn" id="powerBtn" aria-pressed="${e.workout?'true':'false'}">
+          <svg class="power-ring" viewBox="0 0 100 100">
+            <circle class="power-ring-bg" cx="50" cy="50" r="44"></circle>
+            <circle class="power-ring-fg" id="powerRingFg" cx="50" cy="50" r="44"></circle>
+          </svg>
+          <span class="power-emoji" id="powerEmoji">💪</span>
+          <span class="power-stamp">DONE</span>
+        </button>
       </div>
-      <div class="lift-status" id="liftStatus">${e.workout ? 'Racked — nice.' : 'Drag it up to the rack, or tap it'}</div>
+      <div class="lift-status" id="liftStatus">${e.workout ? 'Crushed it — hold to undo' : 'Press & hold to log it'}</div>
 
       <div class="steps-row">
         <div class="row-label">Steps</div>
         <div class="steps-readout"><span id="stepsVal">0</span><span class="goal-chip">goal 10k</span></div>
-        <div class="slider-track-wrap">
-          <div class="walker" id="walkerEl">🚶</div>
-          <div class="goal-tick" id="goalTick"></div>
-          <input type="range" min="0" max="${STEPS_SLIDER_MAX}" step="250" value="${e.steps || 0}" id="stepsSlider" class="steps-slider"/>
+        <div class="run-track" id="runTrack">
+          <div class="run-track-fill" id="runFill"></div>
+          <div class="run-goal-mark" id="runGoalMark"></div>
+          <div class="run-figure" id="runFigure">🚶</div>
         </div>
+        <div class="run-hint">Drag or tap the trail</div>
       </div>
 
       <div class="meal-section">
@@ -486,9 +522,9 @@ function renderApp(){
   let localWorkout = e.workout;
   let localMeals = {...mealsSafe};
   const liftStatus = document.getElementById('liftStatus');
-  setupLift(document.getElementById('liftRig'), document.getElementById('weightEl'), localWorkout, (racked)=>{
+  setupPower(document.getElementById('powerCard'), document.getElementById('powerBtn'), document.getElementById('powerRingFg'), localWorkout, (racked)=>{
     localWorkout = racked;
-    liftStatus.textContent = racked ? 'Racked — nice.' : "Drag it up to the rack, or tap it";
+    liftStatus.textContent = racked ? 'Crushed it — hold to undo' : 'Press & hold to log it';
   });
 
   document.querySelectorAll('.food-btn').forEach(btn=>{
@@ -501,13 +537,13 @@ function renderApp(){
     };
   });
 
-  const slider = document.getElementById('stepsSlider');
-  let localSteps = Number(slider.value);
-  setupStepsSlider(slider);
+  let localSteps = Number(e.steps) || 0;
+  setupStepsTrack(document.getElementById('runTrack'), document.getElementById('runFill'), document.getElementById('runFigure'), document.getElementById('runGoalMark'), localSteps, (v)=>{
+    localSteps = v;
+  });
 
   document.getElementById('saveBtn').onclick = async (ev)=>{
     const btn = ev.currentTarget;
-    localSteps = Number(slider.value);
     setEntry(user, selectedDate, { workout: localWorkout, steps: localSteps, meals: localMeals, note: '' });
     btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Saving…';
     try{
@@ -526,66 +562,101 @@ function renderApp(){
   };
 }
 
-// ---------- workout: drag the weight onto the rack ----------
-function setupLift(rig, weightEl, initialRacked, onChange){
-  const RACKED_TOP = 20;
-  let racked = initialRacked;
-  let bottomTop = rig.clientHeight - weightEl.offsetHeight - 14;
-  function setTop(top, snap){
-    weightEl.classList.toggle('snap', !!snap);
-    weightEl.style.top = top + 'px';
-  }
-  setTop(racked ? RACKED_TOP : bottomTop, false);
-  weightEl.classList.toggle('racked', racked);
+// ---------- workout: press & hold to charge, then slam ----------
+function setupPower(card, btn, ringFg, initialDone, onChange){
+  const HOLD_MS = 650;
+  let done = !!initialDone;
+  let holdTimer = null;
+  let activePointerId = null;
 
-  let dragging = false, startY = 0, startTop = 0;
-  weightEl.addEventListener('pointerdown', (ev)=>{
-    dragging = true;
-    weightEl.setPointerCapture(ev.pointerId);
-    weightEl.classList.add('dragging');
-    weightEl.classList.remove('snap');
-    startY = ev.clientY;
-    startTop = parseFloat(weightEl.style.top);
-    bottomTop = rig.clientHeight - weightEl.offsetHeight - 14;
-  });
-  weightEl.addEventListener('pointermove', (ev)=>{
-    if(!dragging) return;
-    const top = Math.max(RACKED_TOP, Math.min(bottomTop, startTop + (ev.clientY - startY)));
-    setTop(top, false);
-  });
-  function endDrag(ev){
-    if(!dragging) return;
-    dragging = false;
-    weightEl.classList.remove('dragging');
-    const moved = Math.abs(ev.clientY - startY);
-    if(moved < 6){
-      racked = !racked;
-    }else{
-      const threshold = RACKED_TOP + (bottomTop - RACKED_TOP) * 0.45;
-      racked = parseFloat(weightEl.style.top) < threshold;
-    }
-    setTop(racked ? RACKED_TOP : bottomTop, true);
-    weightEl.classList.toggle('racked', racked);
-    onChange(racked);
+  function applyState(){
+    btn.classList.toggle('done', done);
+    btn.setAttribute('aria-pressed', done ? 'true' : 'false');
   }
-  weightEl.addEventListener('pointerup', endDrag);
-  weightEl.addEventListener('pointercancel', endDrag);
+  applyState();
+
+  function complete(){
+    holdTimer = null;
+    done = !done;
+    btn.classList.remove('charging');
+    applyState();
+    if(done){
+      btn.classList.add('slam');
+      setTimeout(()=>btn.classList.remove('slam'), 400);
+    }
+    if(navigator.vibrate) navigator.vibrate(done ? [18,30,40] : 15);
+    onChange(done);
+  }
+
+  function startCharge(ev){
+    if(holdTimer) return;
+    activePointerId = ev.pointerId;
+    try{ btn.setPointerCapture(activePointerId); }catch(err){}
+    btn.classList.add('charging');
+    holdTimer = setTimeout(complete, HOLD_MS);
+  }
+  function abortCharge(ev){
+    if(ev && ev.pointerId !== activePointerId) return;
+    if(!holdTimer) return;
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    btn.classList.remove('charging');
+    card.classList.add('shake');
+    setTimeout(()=>card.classList.remove('shake'), 400);
+  }
+  btn.addEventListener('pointerdown', startCharge);
+  btn.addEventListener('pointerup', abortCharge);
+  btn.addEventListener('pointercancel', abortCharge);
+  btn.addEventListener('pointerleave', abortCharge);
 }
 
-// ---------- steps: slider + walking figure ----------
-function setupStepsSlider(slider){
+// ---------- steps: drag anywhere on the run track ----------
+function setupStepsTrack(track, fill, figure, goalMark, initialSteps, onChange){
+  const max = STEPS_SLIDER_MAX;
   const stepsVal = document.getElementById('stepsVal');
-  const walker = document.getElementById('walkerEl');
-  const goalTick = document.getElementById('goalTick');
-  goalTick.style.left = (STEP_GOAL / STEPS_SLIDER_MAX * 100) + '%';
-  function update(){
-    const pct = (slider.value / slider.max) * 100;
-    slider.style.setProperty('--pct', pct + '%');
-    walker.style.left = pct + '%';
-    stepsVal.textContent = fmtSteps(Number(slider.value)) + (Number(slider.value) >= Number(slider.max) ? '+' : '');
+  let value = Math.max(0, Math.min(max, initialSteps || 0));
+  goalMark.style.left = (STEP_GOAL / max * 100) + '%';
+
+  const FIGURE_PAD = 18; // keep the walker's centerpoint clear of the pill's rounded/clipped edges
+  function render(prevValue){
+    const pct = (value / max) * 100;
+    fill.style.width = pct + '%';
+    const trackWidth = track.clientWidth;
+    const x = trackWidth ? FIGURE_PAD + (pct/100) * (trackWidth - FIGURE_PAD*2) : 0;
+    figure.style.left = x + 'px';
+    stepsVal.textContent = fmtSteps(value) + (value >= max ? '+' : '');
+    if(prevValue !== undefined && Math.floor(prevValue/1000) !== Math.floor(value/1000)){
+      figure.classList.remove('bump');
+      void figure.offsetWidth;
+      figure.classList.add('bump');
+    }
   }
-  slider.oninput = update;
-  update();
+  render();
+
+  function setFromClientX(clientX){
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    const snapped = Math.round((ratio * max) / 100) * 100;
+    if(snapped === value) return;
+    const prev = value;
+    value = snapped;
+    render(prev);
+    onChange(value);
+  }
+
+  let dragging = false;
+  track.addEventListener('pointerdown', (ev)=>{
+    dragging = true;
+    try{ track.setPointerCapture(ev.pointerId); }catch(err){}
+    setFromClientX(ev.clientX);
+  });
+  track.addEventListener('pointermove', (ev)=>{
+    if(!dragging) return;
+    setFromClientX(ev.clientX);
+  });
+  function endDrag(){ dragging = false; }
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
 }
 
 // ---------- celebration ----------
