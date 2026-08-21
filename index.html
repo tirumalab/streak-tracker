@@ -132,56 +132,55 @@
   .kb-floor{
     position:absolute;left:12px;right:12px;bottom:12px;height:26px;border-radius:8px;
     background:var(--surface);border:1px solid var(--border);
-    display:flex;align-items:center;justify-content:center;overflow:hidden;
-    transition:background .35s ease;
   }
-  .kb-floor.molten{
-    background:radial-gradient(ellipse at center,#ff9a52,#ff5c3d 55%,#7a1c0a 100%);
-    border-color:var(--lava);cursor:pointer;
-    animation:kb-pulse 1.6s ease-in-out infinite;
-  }
-  @keyframes kb-pulse{
-    0%,100%{box-shadow:0 0 16px 2px rgba(255,92,61,.5), inset 0 0 10px rgba(255,180,120,.4);}
-    50%{box-shadow:0 0 28px 8px rgba(255,140,60,.75), inset 0 0 16px rgba(255,200,150,.55);}
-  }
-  .kb-badge{
-    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:12px;letter-spacing:1.5px;
-    color:#3a0f04;opacity:0;transform:scale(.4);transition:opacity .2s ease .15s, transform .2s ease .15s;
-    pointer-events:none;
-  }
-  .kb-floor.molten .kb-badge{opacity:1;transform:scale(1);}
   .kb-bell{
     position:absolute;left:50%;top:16px;width:48px;margin-left:-24px;
     touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab;-webkit-tap-highlight-color:transparent;
   }
   .kb-bell.dragging{cursor:grabbing;}
-  .kb-bell.falling{transition:top .32s cubic-bezier(.7,0,.9,.45);}
   .kb-bell.returning{transition:top .5s cubic-bezier(.22,1.5,.4,1);}
-  .kb-bell.dissolve{transition:opacity .35s ease, transform .35s ease, filter .35s ease;
-    opacity:0;transform:scale(.25) translateY(6px);filter:blur(5px);}
+  .kb-bell.launching{transition:top .32s cubic-bezier(.7,0,.9,.42);pointer-events:none;}
   .kb-bell.hidden{visibility:hidden;}
+  .kb-stamp{
+    position:absolute;inset:14px;display:none;align-items:center;justify-content:center;
+    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;letter-spacing:2.5px;
+    color:var(--lava);border:3px solid var(--lava);border-radius:12px;
+    background:rgba(255,92,61,.08);cursor:pointer;
+    text-shadow:0 0 10px rgba(255,92,61,.8);-webkit-tap-highlight-color:transparent;
+  }
+  .kb-stamp.show{
+    display:flex;
+    animation:kb-stamp-pop .35s cubic-bezier(.34,1.56,.64,1), kb-stamp-glow 1.6s ease-in-out infinite .35s;
+  }
+  @keyframes kb-stamp-pop{
+    0%{transform:scale(2) rotate(-14deg);opacity:0;}
+    60%{transform:scale(.9) rotate(-10deg);opacity:1;}
+    100%{transform:scale(1) rotate(-10deg);opacity:1;}
+  }
+  @keyframes kb-stamp-glow{
+    0%,100%{box-shadow:0 0 16px 2px rgba(255,92,61,.5), inset 0 0 12px rgba(255,92,61,.22);}
+    50%{box-shadow:0 0 28px 7px rgba(255,140,70,.7), inset 0 0 18px rgba(255,160,100,.4);}
+  }
+  .screen-crash{
+    position:fixed;left:0;right:0;bottom:0;height:6px;pointer-events:none;z-index:80;
+    background:radial-gradient(ellipse at center,rgba(255,150,80,.95),rgba(255,92,61,.55) 45%,transparent 78%);
+    opacity:0;animation:screen-crash-flash .5s ease-out forwards;
+  }
+  @keyframes screen-crash-flash{
+    0%{opacity:0;height:4px;}
+    12%{opacity:1;height:70px;}
+    100%{opacity:0;height:14px;}
+  }
+  #root.crash-shake{animation:crash-shake .3s ease;}
+  @keyframes crash-shake{
+    10%,90%{transform:translateY(-1px)} 20%,80%{transform:translateY(2px)}
+    30%,50%,70%{transform:translateY(-3px)} 40%,60%{transform:translateY(3px)}
+  }
   .kb-handle{width:24px;height:15px;margin:0 auto;border:5px solid var(--text-muted);border-bottom:none;border-radius:14px 14px 0 0;}
   .kb-ball{
     width:48px;height:42px;margin-top:-2px;border-radius:48% 48% 44% 44%;
     background:linear-gradient(160deg,#3d434a,#1c2024 72%);border:1px solid var(--border);
     box-shadow:inset -6px -6px 10px rgba(0,0,0,.45), inset 4px 4px 6px rgba(255,255,255,.06);
-  }
-  .kb-debris{
-    position:absolute;bottom:22px;width:5px;height:5px;border-radius:1px;background:var(--text-muted);
-    pointer-events:none;animation-duration:.5s;animation-timing-function:ease-out;animation-fill-mode:forwards;
-  }
-  @keyframes kb-debris-fly{
-    0%{opacity:1;transform:translate(0,0) rotate(0);}
-    100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot));}
-  }
-  @keyframes kb-debris-converge{
-    0%{opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--rot));}
-    100%{opacity:0;transform:translate(0,0) rotate(0);}
-  }
-  .kb-rig.shake{animation:kb-shake .4s ease;}
-  @keyframes kb-shake{
-    10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)}
-    30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)}
   }
   .lift-status{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:18px;}
 
@@ -555,13 +554,14 @@ function renderApp(){
       <div class="row-label">Workout</div>
       <div class="kb-rig" id="kbRig">
         <div class="kb-track"></div>
-        <div class="kb-floor" id="kbFloor"><span class="kb-badge" id="kbBadge">CRUSHED</span></div>
+        <div class="kb-floor"></div>
         <div class="kb-bell" id="kbBell">
           <div class="kb-handle"></div>
           <div class="kb-ball"></div>
         </div>
+        <div class="kb-stamp" id="kbStamp">CRUSHED</div>
       </div>
-      <div class="lift-status" id="liftStatus">${e.workout ? 'Crushed it — tap the crater to undo' : 'Drag it down, or tap to drop it'}</div>
+      <div class="lift-status" id="liftStatus">${e.workout ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it'}</div>
 
       <div class="steps-row">
         <div class="row-label">Steps</div>
@@ -626,9 +626,9 @@ function renderApp(){
   let localWorkout = e.workout;
   let localMeals = {...mealsSafe};
   const liftStatus = document.getElementById('liftStatus');
-  setupKettlebell(document.getElementById('kbRig'), document.getElementById('kbBell'), document.getElementById('kbFloor'), localWorkout, (crushed)=>{
+  setupKettlebell(document.getElementById('kbRig'), document.getElementById('kbBell'), document.getElementById('kbStamp'), localWorkout, (crushed)=>{
     localWorkout = crushed;
-    liftStatus.textContent = crushed ? 'Crushed it — tap the crater to undo' : 'Drag it down, or tap to drop it';
+    liftStatus.textContent = crushed ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it';
   });
 
   ['breakfast','lunch','dinner'].forEach(m=>{
@@ -662,70 +662,71 @@ function renderApp(){
   };
 }
 
-// ---------- workout: kettlebell gravity drop ----------
-function kbSpawnDebris(rig, converge){
-  for(let i=0;i<(converge?10:16);i++){
-    const d = document.createElement('div');
-    d.className = 'kb-debris';
-    const angle = Math.random()*Math.PI - Math.PI; // spread upward/sideways
-    const dist = 16 + Math.random()*30;
-    const dx = Math.cos(angle)*dist, dy = -Math.abs(Math.sin(angle)*dist) - 4;
-    d.style.left = 'calc(50% - 2px)';
-    d.style.setProperty('--dx', dx+'px');
-    d.style.setProperty('--dy', dy+'px');
-    d.style.setProperty('--rot', (Math.random()*260-130)+'deg');
-    d.style.animationName = converge ? 'kb-debris-converge' : 'kb-debris-fly';
-    d.style.animationDelay = (Math.random()*0.08)+'s';
-    rig.appendChild(d);
-    d.addEventListener('animationend', ()=>d.remove());
-  }
-}
-
-function setupKettlebell(rig, bell, floor, initialCrushed, onChange){
+// ---------- workout: kettlebell gravity drop (crashes at the bottom of the screen) ----------
+function setupKettlebell(rig, bell, stamp, initialCrushed, onChange){
   const TOP = 16;
   let crushed = !!initialCrushed;
 
-  function bottomTop(){ return rig.clientHeight - 38 - bell.offsetHeight + 6; }
-
-  function idleVisual(){
-    bell.classList.remove('dissolve','hidden','falling','returning','dragging');
+  function resetBellStyle(){
+    bell.style.position = '';
+    bell.style.left = '';
+    bell.style.margin = '';
     bell.style.top = TOP + 'px';
-    floor.classList.remove('molten');
+  }
+  function idleVisual(){
+    bell.classList.remove('hidden','returning','dragging','launching');
+    resetBellStyle();
+    stamp.classList.remove('show');
   }
   function crushedVisual(){
-    bell.style.top = bottomTop() + 'px';
-    bell.classList.remove('dragging','falling','returning');
+    bell.classList.remove('dragging','returning','launching');
     bell.classList.add('hidden');
-    floor.classList.add('molten');
+    resetBellStyle();
+    stamp.classList.add('show');
   }
   (crushed ? crushedVisual : idleVisual)();
 
-  function impact(){
+  function launchToBottom(){
+    const r = bell.getBoundingClientRect();
+    bell.style.position = 'fixed';
+    bell.style.left = r.left + 'px';
+    bell.style.top = r.top + 'px';
+    bell.style.margin = '0';
+    bell.classList.remove('dragging');
+    void bell.offsetWidth; // commit the position:fixed jump before animating
+    bell.classList.add('launching');
+    const targetTop = window.innerHeight - r.height - 10;
+    requestAnimationFrame(()=>{ bell.style.top = targetTop + 'px'; });
+    setTimeout(impactAtBottom, 330);
+  }
+
+  function impactAtBottom(){
+    bell.classList.remove('launching');
+    bell.classList.add('hidden');
+    resetBellStyle();
+
     haptic('heavy');
-    kbSpawnDebris(rig, false);
-    setTimeout(()=>{
-      floor.classList.add('molten');
-      bell.classList.add('dissolve');
-      setTimeout(()=>bell.classList.add('hidden'), 360);
-    }, 80);
+    const flash = document.createElement('div');
+    flash.className = 'screen-crash';
+    document.body.appendChild(flash);
+    flash.addEventListener('animationend', ()=>flash.remove());
+    root.classList.add('crash-shake');
+    setTimeout(()=>root.classList.remove('crash-shake'), 320);
+
+    setTimeout(()=>stamp.classList.add('show'), 110);
     crushed = true;
     onChange(true);
   }
 
   function undo(){
     haptic('light');
-    kbSpawnDebris(rig, true);
-    floor.classList.remove('molten');
-    bell.classList.remove('hidden','dissolve');
-    bell.style.top = bottomTop() + 'px';
-    bell.classList.add('returning');
-    requestAnimationFrame(()=>{ bell.style.top = TOP + 'px'; });
-    setTimeout(()=>bell.classList.remove('returning'), 520);
+    stamp.classList.remove('show');
+    bell.classList.remove('hidden');
+    resetBellStyle();
     crushed = false;
     onChange(false);
   }
-
-  floor.addEventListener('click', ()=>{ if(crushed) undo(); });
+  stamp.addEventListener('click', undo);
 
   let dragging = false, startY = 0, startTop = 0, moved = 0;
   bell.addEventListener('pointerdown', (ev)=>{
@@ -733,7 +734,7 @@ function setupKettlebell(rig, bell, floor, initialCrushed, onChange){
     dragging = true;
     try{ bell.setPointerCapture(ev.pointerId); }catch(err){}
     bell.classList.add('dragging');
-    bell.classList.remove('falling','returning');
+    bell.classList.remove('returning');
     startY = ev.clientY;
     startTop = parseFloat(bell.style.top) || TOP;
     moved = 0;
@@ -742,30 +743,23 @@ function setupKettlebell(rig, bell, floor, initialCrushed, onChange){
     if(!dragging) return;
     const dy = ev.clientY - startY;
     moved = Math.abs(dy);
-    const bottom = bottomTop();
+    const bottom = rig.clientHeight - 38 - bell.offsetHeight + 6;
     bell.style.top = Math.max(TOP, Math.min(bottom, startTop + dy)) + 'px';
   });
   function endDrag(){
     if(!dragging) return;
     dragging = false;
     bell.classList.remove('dragging');
-    const bottom = bottomTop();
-    if(moved < 6){
-      bell.classList.add('falling');
-      bell.style.top = bottom + 'px';
-      setTimeout(impact, 340);
-      return;
-    }
+    if(moved < 6){ launchToBottom(); return; }
+    const bottom = rig.clientHeight - 38 - bell.offsetHeight + 6;
     const top = parseFloat(bell.style.top);
     const frac = (top - TOP) / (bottom - TOP);
     if(frac > 0.7){
-      bell.classList.add('falling');
-      bell.style.top = bottom + 'px';
-      setTimeout(impact, 200);
+      launchToBottom();
     }else{
       bell.classList.add('returning');
       bell.style.top = TOP + 'px';
-      setTimeout(()=>bell.classList.remove('returning'), 520);
+      setTimeout(()=>bell.classList.remove('returning'), 420);
     }
   }
   bell.addEventListener('pointerup', endDrag);
