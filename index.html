@@ -28,7 +28,14 @@
     --neon-green:#39ff6a;
     --neon-amber:#ffb020;
     --lava:#ff5c3d;
+    /* zen accents (player 3) */
+    --zen-lavender:#a899e6;
+    --zen-teal:#4ecdc4;
+    /* general chrome accent — shifts to zen colors while viewing a mindfulness player */
+    --accent-a:var(--p1);
+    --accent-b:var(--p2);
   }
+  #root.zen-mode{ --accent-a:var(--zen-lavender); --accent-b:var(--zen-teal); }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -46,10 +53,11 @@
     letter-spacing:1px;
     line-height:1;
     margin:0;
-    background:linear-gradient(90deg,var(--p1),var(--p2));
+    background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
+    transition:background .5s ease;
   }
   .tagline{
     color:var(--text-muted);
@@ -59,7 +67,7 @@
     letter-spacing:.5px;
   }
   button{font-family:inherit;cursor:pointer;}
-  input:focus-visible,button:focus-visible{outline:2px solid var(--p2);outline-offset:2px;}
+  input:focus-visible,button:focus-visible{outline:2px solid var(--accent-b);outline-offset:2px;}
 
   /* setup */
   .setup-card{
@@ -77,9 +85,9 @@
     color:var(--text);border-radius:10px;padding:12px 14px;font-size:15px;
   }
   .primary-btn{
-    background:var(--p1);color:#14171a;border:none;border-radius:10px;
+    background:var(--accent-a);color:#14171a;border:none;border-radius:10px;
     padding:13px 20px;font-size:15px;font-weight:700;width:100%;margin-top:6px;
-    transition:transform .1s ease, opacity .15s ease;
+    transition:transform .1s ease, opacity .15s ease, background .4s ease;
   }
   .primary-btn:active{transform:scale(.98);}
   .primary-btn:disabled{opacity:.4;cursor:not-allowed;}
@@ -104,13 +112,29 @@
   @keyframes player-pulse-p1{0%,100%{background:var(--surface);}50%{background:#16232a;}}
   .player-card.p0.active .player-badge{color:var(--p1);}
   .player-card.p1.active .player-badge{color:var(--p2);}
+  .player-card.p2.active .player-badge{color:var(--zen-lavender);}
   .player-card.p0.active .player-badge::before{content:'\25CF P1 \00b7 ACTIVE';}
   .player-card.p1.active .player-badge::before{content:'\25CF P2 \00b7 ACTIVE';}
+  .player-card.p2.active .player-badge::before{content:'\25CF P3 \00b7 ZEN';}
+  .player-card.p2.active{
+    border-color:var(--zen-lavender);
+    box-shadow:0 0 14px rgba(168,153,230,.5), inset 0 0 18px rgba(168,153,230,.12);
+    animation:player-pulse-p2 1.8s ease-in-out infinite;
+  }
+  @keyframes player-pulse-p2{0%,100%{background:var(--surface);}50%{background:#221e30;}}
   .player-card.flash::after{
     content:'';position:absolute;inset:0;background:#fff;opacity:.55;
     animation:player-flash .3s ease-out forwards;
   }
   @keyframes player-flash{0%{opacity:.55;}100%{opacity:0;}}
+  .aura-fade{
+    position:fixed;inset:0;z-index:55;pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(168,153,230,.2), rgba(78,205,196,.12) 55%, transparent 80%);
+    opacity:0;animation:aura-fade-anim 1.1s ease-out forwards;
+  }
+  @keyframes aura-fade-anim{
+    0%{opacity:0;} 25%{opacity:1;} 100%{opacity:0;}
+  }
 
   /* today card */
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;}
@@ -280,6 +304,96 @@
     100%{opacity:0;transform:translate(var(--dx),var(--dy));}
   }
 
+  /* meditation: mindfulness ripple orb */
+  .orb-rig{
+    position:relative;height:170px;border-radius:12px;overflow:hidden;margin-bottom:6px;
+    background:linear-gradient(180deg,#141a22 0%,#0d1418 70%);border:1px solid var(--border);
+    touch-action:none;
+  }
+  .water{
+    position:absolute;left:0;right:0;bottom:0;height:52%;
+    background:linear-gradient(180deg, rgba(78,205,196,.12), rgba(20,40,45,.55));
+    border-top:1px solid rgba(78,205,196,.28);
+  }
+  .orb{
+    position:absolute;left:50%;top:32%;width:46px;height:46px;margin:-23px 0 0 -23px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.55), rgba(78,205,196,.35) 45%, rgba(78,205,196,.12) 80%);
+    border:1px solid rgba(78,205,196,.55);
+    box-shadow:0 0 18px 4px rgba(78,205,196,.35), inset 0 0 14px rgba(255,255,255,.15);
+    -webkit-user-select:none;user-select:none;cursor:grab;-webkit-tap-highlight-color:transparent;
+    animation:orb-bob 3.2s ease-in-out infinite;
+  }
+  @keyframes orb-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .orb.charging{animation:none;}
+  .orb.hidden{visibility:hidden;}
+  .ripple{
+    position:absolute;left:50%;bottom:6px;width:10px;height:10px;margin-left:-5px;
+    border:2px solid rgba(78,205,196,.6);border-radius:50%;
+    animation:ripple-expand 1.1s ease-out forwards;pointer-events:none;
+  }
+  @keyframes ripple-expand{
+    0%{width:10px;height:10px;margin-left:-5px;opacity:.9;}
+    100%{width:170px;height:46px;margin-left:-85px;opacity:0;}
+  }
+  .orb-settled{
+    position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    cursor:pointer;
+  }
+  .orb-settled.show{display:flex;animation:zen-fade-in .4s ease;}
+  @keyframes zen-fade-in{0%{opacity:0;}100%{opacity:1;}}
+  .lotus-row{display:flex;gap:6px;font-size:20px;filter:drop-shadow(0 0 6px rgba(78,205,196,.6));}
+  .med-minutes{
+    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;
+    color:var(--zen-teal);text-shadow:0 0 8px rgba(78,205,196,.6);
+  }
+
+  /* mindfulness: zen garden rake */
+  .sand-tray{
+    position:relative;height:150px;border-radius:12px;overflow:hidden;margin-bottom:6px;
+    background:repeating-linear-gradient(135deg,#2a2118 0 10px,#241d15 10px 20px);
+    border:1px solid var(--border);touch-action:none;-webkit-user-select:none;user-select:none;
+    cursor:pointer;
+  }
+  .sand-rocks{position:absolute;inset:0;transition:opacity .3s ease;}
+  .sand-rocks span{position:absolute;font-size:20px;transform:translate(-50%,-50%);transition:transform .5s ease, opacity .5s ease;}
+  .rake-trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .rake-trail path{
+    fill:none;stroke:var(--neon-amber);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;
+    filter:drop-shadow(0 0 5px rgba(247,208,112,.7));opacity:.9;
+  }
+  .zen-badge{
+    position:absolute;inset:14px;display:none;align-items:center;justify-content:center;
+    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;letter-spacing:2px;
+    color:var(--neon-amber);border:3px solid var(--neon-amber);border-radius:12px;
+    background:rgba(247,208,112,.08);cursor:pointer;text-shadow:0 0 10px rgba(247,208,112,.8);
+  }
+  .zen-badge.show{
+    display:flex;
+    animation:kb-stamp-pop .35s cubic-bezier(.34,1.56,.64,1), zen-badge-glow 1.6s ease-in-out infinite .35s;
+  }
+  @keyframes zen-badge-glow{
+    0%,100%{box-shadow:0 0 16px 2px rgba(247,208,112,.5), inset 0 0 12px rgba(247,208,112,.2);}
+    50%{box-shadow:0 0 26px 6px rgba(247,208,112,.7), inset 0 0 18px rgba(247,208,112,.4);}
+  }
+  .wind-particle{
+    position:absolute;top:50%;width:14px;height:2px;background:rgba(247,208,112,.6);border-radius:2px;pointer-events:none;
+    animation:wind-fly .6s ease-out forwards;
+  }
+  @keyframes wind-fly{
+    0%{opacity:.8;transform:translateX(0);}
+    100%{opacity:0;transform:translateX(var(--dx));}
+  }
+  .zen-bloom{
+    position:fixed;bottom:20%;width:10px;height:10px;border-radius:50%;pointer-events:none;z-index:60;
+    filter:blur(1px);animation-name:zen-bloom-rise;animation-timing-function:ease-out;animation-fill-mode:forwards;
+  }
+  @keyframes zen-bloom-rise{
+    0%{transform:translate(0,0) scale(.6);opacity:0;}
+    15%{opacity:.9;}
+    100%{transform:translate(var(--dx),-60vh) scale(1.4);opacity:0;}
+  }
+
   .save-row{display:flex;align-items:center;gap:12px;}
   .save-row .primary-btn{margin-top:0;}
   .save-note{font-size:12px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
@@ -288,16 +402,18 @@
   .score-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;}
   .score-head h3{margin:0;font-size:16px;}
   .week-label{font-size:12px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
-  .score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+  .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
   .score-col{background:var(--surface-2);border-radius:12px;padding:16px;border:1px solid var(--border);}
   .score-col.p0{border-top:3px solid var(--p1);}
   .score-col.p1{border-top:3px solid var(--p2);}
+  .score-col.p2{border-top:3px solid var(--zen-lavender);}
   .score-name{font-size:13px;font-weight:700;margin-bottom:14px;}
   .score-num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:34px;line-height:1;}
   .score-num small{font-family:'Inter';font-weight:600;font-size:14px;color:var(--text-muted);}
   .score-stat{margin-bottom:14px;}
   .score-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
   .goal-met{color:#7ed957;}
+  .goal-met-zen{color:var(--zen-teal);}
 
   .heatrow{display:flex;gap:5px;margin-top:14px;}
   .heat-cell{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;}
@@ -305,6 +421,8 @@
   .heat-box{width:100%;aspect-ratio:1;border-radius:6px;border:1.5px solid var(--border);position:relative;}
   .heat-box.done.p0{background:var(--p1);border-color:var(--p1);}
   .heat-box.done.p1{background:var(--p2);border-color:var(--p2);}
+  .heat-box.done.zen-med{background:var(--zen-teal);border-color:var(--zen-teal);}
+  .heat-box.zen-clear::after{content:'';position:absolute;inset:2px;border:1.5px solid var(--zen-lavender);border-radius:4px;}
   .heat-box.future{opacity:.25;}
   .meal-dots{display:flex;gap:3px;justify-content:center;margin-top:4px;}
   .mdot{width:5px;height:5px;border-radius:50%;background:transparent;border:1px solid var(--border);}
@@ -373,6 +491,9 @@ const ROW_ID = 'shared';
 const STEP_GOAL = 10000;
 const STEPS_SLIDER_MAX = 15000;
 const WORKOUT_GOAL = 4; // days/week floor of the 4-5 target
+const MINDFUL_GOAL = 4; // sessions/week, mirrors WORKOUT_GOAL
+
+function userType(name){ return (appData.userType && appData.userType[name]) || 'fitness'; }
 
 let appData = null;
 let currentUserIdx = 0;
@@ -453,7 +574,21 @@ function setEntry(userName, d, entry){
 
 // ---------- stats ----------
 function weekStats(userName, weekStart, today){
+  const type = userType(userName);
   const days = weekDates(weekStart);
+  if(type === 'mindfulness'){
+    let medDays=0, medMinSum=0, clearedDays=0;
+    const cells = days.map(d=>{
+      const isFuture = stripTime(d) > stripTime(today);
+      const e = isFuture ? null : entryFor(userName, d);
+      if(e){
+        if(e.meditationDone){ medDays++; medMinSum += (e.meditationMinutes||0); }
+        if(e.mindfulnessDone) clearedDays++;
+      }
+      return {date:d, entry:e, isFuture};
+    });
+    return { type, medDays, medMinAvg: medDays ? Math.round(medMinSum/medDays) : 0, clearedDays, cells };
+  }
   let workouts=0, stepsSum=0, stepsDays=0, cheat=0;
   const cells = days.map(d=>{
     const isFuture = stripTime(d) > stripTime(today);
@@ -470,12 +605,15 @@ function weekStats(userName, weekStart, today){
     return {date:d, entry:e, isFuture};
   });
   return {
-    workouts, stepsAvg: stepsDays ? Math.round(stepsSum/stepsDays) : 0,
+    type: 'fitness', workouts, stepsAvg: stepsDays ? Math.round(stepsSum/stepsDays) : 0,
     cheat, cells
   };
 }
+function weeklyGoalMet(stats){
+  return stats.type === 'mindfulness' ? stats.medDays >= MINDFUL_GOAL : stats.workouts >= WORKOUT_GOAL;
+}
 function currentRun(userName, today){
-  // consecutive completed weeks (before this week) hitting workout goal
+  // consecutive completed weeks (before this week) hitting the weekly goal
   let ws = addDays(startOfWeek(today), -7);
   const firstStats = weekStats(userName, ws, addDays(ws,6));
   const hasData = firstStats.cells.some(c=>c.entry);
@@ -485,7 +623,7 @@ function currentRun(userName, today){
     const stats = weekStats(userName, ws, addDays(ws,6));
     const hasAnyData = stats.cells.some(c=>c.entry);
     if(!hasAnyData) break;
-    if(stats.workouts >= WORKOUT_GOAL){ run++; ws = addDays(ws,-7); }
+    if(weeklyGoalMet(stats)){ run++; ws = addDays(ws,-7); }
     else break;
   }
   return {run, hasData:true};
@@ -531,36 +669,63 @@ function renderApp(){
   const wkStart = startOfWeek(today);
   const minDate = wkStart, maxDate = today;
   const user = appData.users[currentUserIdx];
-  const e = entryFor(user, selectedDate) || {workout:false, steps:'', meals:{breakfast:false,lunch:false,dinner:false}, note:''};
-  const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
+  const type = userType(user);
+  root.classList.toggle('zen-mode', type === 'mindfulness');
 
   const isToday = dateKey(selectedDate) === dateKey(today);
   const dLabel = isToday ? 'Today' : selectedDate.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
   const prevDisabled = stripTime(selectedDate) <= minDate;
   const nextDisabled = stripTime(selectedDate) >= maxDate;
 
-  root.innerHTML = `
-    <h1 class="wordmark">STREAK</h1>
-    <p class="tagline">// week of ${fmtWeekLabel(wkStart)}</p>
-
+  const playersHtml = `
     <div class="vs-row">
       ${appData.users.map((n,i)=>`
         <button class="player-card p${i} ${i===currentUserIdx?'active':''}" data-idx="${i}">
           <span class="player-badge"></span>
           <span class="player-name">${n}</span>
         </button>`).join('')}
-    </div>
+    </div>`;
+  const footerHtml = `
+    ${renderScoreboard(wkStart, today)}
+    ${renderRun(today)}
+    <div class="legend">
+      ${appData.users.map((u,i)=>`<span><i style="background:${PLAYER_COLORS[i]||'var(--text-faint)'}"></i>${u}</span>`).join('')}
+      <span><i style="background:var(--cheat)"></i>cheat meal (dot = breakfast/lunch/dinner)</span>
+    </div>`;
 
-    <div class="card">
-      <div class="card-head">
-        <h3>Log for ${user}</h3>
-        <div class="date-nav">
-          <button id="prevDay" ${prevDisabled?'disabled':''}>&larr;</button>
-          <span>${dLabel}</span>
-          <button id="nextDay" ${nextDisabled?'disabled':''}>&rarr;</button>
+  let e, bodyHtml;
+  if(type === 'mindfulness'){
+    e = entryFor(user, selectedDate) || {meditationDone:false, meditationMinutes:0, mindfulnessDone:false, note:''};
+    bodyHtml = `
+      <div class="row-label">Meditation</div>
+      <div class="orb-rig" id="orbRig">
+        <div class="water"></div>
+        <div class="orb" id="orb"></div>
+        <div class="orb-settled" id="orbSettled">
+          <div class="lotus-row" id="lotusRow"></div>
+          <div class="med-minutes" id="medMinutesLabel"></div>
         </div>
       </div>
+      <div class="lift-status" id="medStatus">${e.meditationDone ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe'}</div>
 
+      <div class="row-label" style="margin-top:4px;">Mindfulness — clear the field</div>
+      <div class="sand-tray" id="sandTray">
+        <div class="sand-rocks" id="sandRocks">
+          <span style="left:18%;top:32%;">🪨</span>
+          <span style="left:64%;top:58%;">🪨</span>
+          <span style="left:42%;top:74%;">🪨</span>
+          <span style="left:80%;top:28%;">🪨</span>
+          <span style="left:26%;top:62%;">🪨</span>
+        </div>
+        <svg class="rake-trail" id="rakeTrail"></svg>
+        <div class="zen-badge" id="zenBadge">MIND CLEARED</div>
+      </div>
+      <div class="lift-status" id="mindStatus">${e.mindfulnessDone ? 'Field cleared — tap to reset' : 'Swipe across the sand'}</div>
+    `;
+  }else{
+    e = entryFor(user, selectedDate) || {workout:false, steps:'', meals:{breakfast:false,lunch:false,dinner:false}, note:''};
+    const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
+    bodyHtml = `
       <div class="row-label">Workout</div>
       <div class="kb-rig" id="kbRig">
         <div class="kb-track"></div>
@@ -596,29 +761,41 @@ function renderApp(){
           </div>
         </div>`).join('')}
       </div>
+    `;
+  }
 
+  root.innerHTML = `
+    <h1 class="wordmark">STREAK</h1>
+    <p class="tagline">// week of ${fmtWeekLabel(wkStart)}</p>
+    ${playersHtml}
+    <div class="card">
+      <div class="card-head">
+        <h3>Log for ${user}</h3>
+        <div class="date-nav">
+          <button id="prevDay" ${prevDisabled?'disabled':''}>&larr;</button>
+          <span>${dLabel}</span>
+          <button id="nextDay" ${nextDisabled?'disabled':''}>&rarr;</button>
+        </div>
+      </div>
+      ${bodyHtml}
       <div class="save-row">
         <button class="primary-btn" id="saveBtn">Save ${dLabel.toLowerCase()}</button>
       </div>
     </div>
-
-    ${renderScoreboard(wkStart, today)}
-    ${renderRun(today)}
-
-    <div class="legend">
-      <span><i style="background:var(--p1)"></i>${appData.users[0]}</span>
-      <span><i style="background:var(--p2)"></i>${appData.users[1]}</span>
-      <span><i style="background:var(--cheat)"></i>cheat meal (dot = breakfast/lunch/dinner)</span>
-    </div>
+    ${footerHtml}
   `;
 
-  // wire up events
+  // wire up events common to both player types
   document.querySelectorAll('.player-card').forEach(btn=>{
     btn.onclick = ()=>{
       const idx = Number(btn.dataset.idx);
       if(idx === currentUserIdx) return;
       currentUserIdx = idx;
       flashNextRender = true;
+      if(userType(appData.users[idx]) === 'mindfulness'){
+        playChime();
+        spawnAuraFade();
+      }
       renderApp();
     };
   });
@@ -633,6 +810,43 @@ function renderApp(){
     flashNextRender = false;
   }
 
+  if(type === 'mindfulness'){
+    let localMedDone = e.meditationDone, localMedMinutes = e.meditationMinutes || 0, localMindDone = e.mindfulnessDone;
+    const medStatus = document.getElementById('medStatus');
+    const mindStatus = document.getElementById('mindStatus');
+    setupOrb(document.getElementById('orbRig'), document.getElementById('orb'), document.getElementById('orbSettled'),
+      document.getElementById('lotusRow'), document.getElementById('medMinutesLabel'),
+      {done: localMedDone, minutes: localMedMinutes}, (done, minutes)=>{
+        localMedDone = done; localMedMinutes = minutes;
+        medStatus.textContent = done ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe';
+      });
+    setupSandRake(document.getElementById('sandTray'), document.getElementById('sandRocks'),
+      document.getElementById('rakeTrail'), document.getElementById('zenBadge'), localMindDone, (done)=>{
+        localMindDone = done;
+        mindStatus.textContent = done ? 'Field cleared — tap to reset' : 'Swipe across the sand';
+      });
+
+    document.getElementById('saveBtn').onclick = async (ev)=>{
+      const btn = ev.currentTarget;
+      setEntry(user, selectedDate, { meditationDone: localMedDone, meditationMinutes: localMedMinutes, mindfulnessDone: localMindDone, note: '' });
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try{
+        await saveData();
+        if(localMedDone && localMindDone){
+          celebrateZen();
+          showToast(`🧘 Centered day, ${user}!`);
+        }else{
+          showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
+        }
+      }catch(err){
+        showToast('Save failed — try again');
+      }
+      renderApp();
+    };
+    return;
+  }
+
+  const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
   let localWorkout = e.workout;
   let localMeals = {...mealsSafe};
   const liftStatus = document.getElementById('liftStatus');
@@ -970,7 +1184,268 @@ function setupStepsTrack(track, fill, figure, goalMark, initialSteps, onChange){
   track.addEventListener('pointercancel', endDrag);
 }
 
+// ---------- zen: shared audio + fx helpers ----------
+let audioCtx = null;
+function playChime(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    [220, 330, 440].forEach((f,i)=>{
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.06/(i+1), now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 2.3);
+    });
+  }catch(err){}
+}
+function startBreathTone(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 180;
+    gain.gain.value = 0;
+    gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.15);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    return { osc, gain };
+  }catch(err){ return null; }
+}
+function stopBreathTone(tone){
+  if(!tone || !audioCtx) return;
+  try{
+    const now = audioCtx.currentTime;
+    tone.gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    tone.osc.stop(now + 0.35);
+  }catch(err){}
+}
+function spawnAuraFade(){
+  const a = document.createElement('div');
+  a.className = 'aura-fade';
+  document.body.appendChild(a);
+  a.addEventListener('animationend', ()=>a.remove());
+}
+
+// ---------- meditation: mindfulness ripple orb ----------
+function createRipple(rig, delay){
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.animationDelay = delay + 's';
+  rig.appendChild(r);
+  r.addEventListener('animationend', ()=>r.remove());
+}
+function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
+  let done = !!initial.done;
+  let minutes = initial.minutes || 0;
+
+  function idleVisual(){
+    orb.classList.remove('hidden','charging');
+    orb.style.transform = '';
+    settled.classList.remove('show');
+  }
+  function settledVisual(){
+    orb.classList.add('hidden');
+    orb.style.transform = '';
+    lotusRow.textContent = '🪷'.repeat(Math.max(1, Math.min(5, Math.ceil(minutes/3))));
+    minutesLabel.textContent = minutes + ' min';
+    settled.classList.add('show');
+  }
+  (done ? settledVisual : idleVisual)();
+
+  let holding = false, startTime = 0, rafId = null, tone = null, hapticTimer = null;
+  function tick(){
+    if(!holding) return;
+    const ratio = Math.min(1, (performance.now() - startTime) / 1800);
+    orb.style.transform = `scale(${1 + ratio*0.7})`;
+    if(tone) tone.osc.frequency.value = 180 + ratio*140;
+    rafId = requestAnimationFrame(tick);
+  }
+
+  orb.addEventListener('pointerdown', (ev)=>{
+    if(done) return;
+    holding = true;
+    startTime = performance.now();
+    try{ orb.setPointerCapture(ev.pointerId); }catch(err){}
+    orb.classList.add('charging');
+    tone = startBreathTone();
+    hapticTimer = setInterval(()=>haptic('light'), 380);
+    rafId = requestAnimationFrame(tick);
+  });
+  function release(){
+    if(!holding) return;
+    holding = false;
+    cancelAnimationFrame(rafId);
+    clearInterval(hapticTimer);
+    stopBreathTone(tone);
+    tone = null;
+    const heldMs = performance.now() - startTime;
+    orb.classList.remove('charging');
+    orb.style.transform = '';
+    if(heldMs < 400) return; // too brief — resets to idle bob, no session logged
+
+    minutes = Math.max(1, Math.min(15, Math.round(heldMs / 400)));
+    haptic('medium');
+    orb.classList.add('hidden');
+    createRipple(rig, 0);
+    createRipple(rig, 0.15);
+    createRipple(rig, 0.3);
+    setTimeout(()=>{
+      done = true;
+      settledVisual();
+      onChange(true, minutes);
+    }, 420);
+  }
+  orb.addEventListener('pointerup', release);
+  orb.addEventListener('pointercancel', release);
+
+  settled.addEventListener('click', ()=>{
+    if(!done) return;
+    haptic('light');
+    createRipple(rig, 0);
+    settled.classList.remove('show');
+    done = false;
+    idleVisual();
+    onChange(false, minutes);
+  });
+}
+
+// ---------- mindfulness: zen garden rake ----------
+function windSweep(container){
+  for(let i=0;i<10;i++){
+    const w = document.createElement('div');
+    w.className = 'wind-particle';
+    w.style.left = '0%';
+    w.style.top = (10 + Math.random()*80) + '%';
+    w.style.setProperty('--dx', (container.clientWidth + 20) + 'px');
+    w.style.animationDelay = (Math.random()*0.2) + 's';
+    container.appendChild(w);
+    w.addEventListener('animationend', ()=>w.remove());
+  }
+}
+function setupSandRake(tray, rocksEl, svgEl, badge, initialDone, onChange){
+  const NS = 'http://www.w3.org/2000/svg';
+  let done = !!initialDone;
+  let path = null;
+
+  function resetRocks(){
+    rocksEl.querySelectorAll('span').forEach(r=>{
+      r.style.transform = '';
+      r.style.opacity = '1';
+      delete r.dataset.pushed;
+    });
+  }
+  function idleVisual(){
+    rocksEl.style.opacity = '1';
+    badge.classList.remove('show');
+    svgEl.innerHTML = '';
+  }
+  function doneVisual(){
+    rocksEl.style.opacity = '0';
+    svgEl.innerHTML = '';
+    badge.classList.add('show');
+  }
+  (done ? doneVisual : idleVisual)();
+
+  const THRESHOLD = 240;
+  let dragging = false, pts = [], totalDist = 0, lastPt = null, lastTick = 0;
+
+  tray.addEventListener('pointerdown', (ev)=>{
+    if(done) return;
+    dragging = true;
+    try{ tray.setPointerCapture(ev.pointerId); }catch(err){}
+    const rect = tray.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    pts = [[x,y]]; totalDist = 0; lastPt = [x,y];
+    path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', `M${x},${y}`);
+    svgEl.appendChild(path);
+  });
+  tray.addEventListener('pointermove', (ev)=>{
+    if(!dragging) return;
+    const rect = tray.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, ev.clientX - rect.left));
+    const y = Math.max(0, Math.min(rect.height, ev.clientY - rect.top));
+    const d = Math.hypot(x - lastPt[0], y - lastPt[1]);
+    if(d <= 3) return;
+    totalDist += d;
+    pts.push([x,y]);
+    lastPt = [x,y];
+    path.setAttribute('d', pts.map((p,i)=>(i===0?'M':'L')+p[0]+','+p[1]).join(' '));
+    rocksEl.querySelectorAll('span').forEach(r=>{
+      if(r.dataset.pushed) return;
+      const rx = parseFloat(r.style.left)/100 * rect.width;
+      const ry = parseFloat(r.style.top)/100 * rect.height;
+      if(Math.hypot(rx - x, ry - y) < 30){
+        r.dataset.pushed = '1';
+        const ang = Math.atan2(ry - y, rx - x);
+        r.style.transform = `translate(calc(-50% + ${Math.cos(ang)*80}px), calc(-50% + ${Math.sin(ang)*80}px)) scale(.4)`;
+        r.style.opacity = '0';
+        haptic('light');
+      }
+    });
+    const now = performance.now();
+    if(now - lastTick > 120){ lastTick = now; haptic('light'); }
+  });
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    if(totalDist >= THRESHOLD){
+      haptic('medium');
+      setTimeout(()=>{
+        done = true;
+        doneVisual();
+        onChange(true);
+      }, 200);
+    }else if(path){
+      path.style.transition = 'opacity .4s ease';
+      path.style.opacity = '0';
+      resetRocks();
+      setTimeout(()=>{ svgEl.innerHTML = ''; }, 400);
+    }
+  }
+  tray.addEventListener('pointerup', endDrag);
+  tray.addEventListener('pointercancel', endDrag);
+
+  badge.addEventListener('click', ()=>{
+    if(!done) return;
+    haptic('light');
+    windSweep(tray);
+    setTimeout(()=>{
+      done = false;
+      idleVisual();
+      resetRocks();
+      onChange(false);
+    }, 300);
+  });
+}
+
 // ---------- celebration ----------
+function celebrateZen(){
+  const colors = ['rgba(168,153,230,.85)','rgba(78,205,196,.85)','rgba(255,255,255,.7)'];
+  for(let i=0;i<16;i++){
+    const p = document.createElement('div');
+    p.className = 'zen-bloom';
+    p.style.left = (40 + Math.random()*20) + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.setProperty('--dx', (Math.random()*120-60) + 'px');
+    p.style.animationDuration = (1.4 + Math.random()*0.6) + 's';
+    p.style.animationDelay = (Math.random()*0.3) + 's';
+    document.body.appendChild(p);
+    p.addEventListener('animationend', ()=>p.remove());
+  }
+  const s = document.createElement('div');
+  s.className = 'sticker-pop';
+  s.textContent = '🧘';
+  document.body.appendChild(s);
+  s.addEventListener('animationend', ()=>s.remove());
+}
 function celebrate(){
   const colors = ['#ff5c3d','#43c9dd','#ffc84d','#7ed957','#eef0f2'];
   for(let i=0;i<28;i++){
@@ -1008,8 +1483,37 @@ function renderScoreboard(wkStart, today){
 
 function renderScoreCol(userName, idx, wkStart, today){
   const s = weekStats(userName, wkStart, today);
+  const pClass = 'p'+idx;
+
+  if(s.type === 'mindfulness'){
+    const goalMet = s.medDays >= MINDFUL_GOAL;
+    return `
+      <div class="score-col ${pClass}">
+        <div class="score-name">${userName}</div>
+        <div class="score-stat">
+          <div class="score-num ${goalMet?'goal-met-zen':''}">${s.medDays}<small> / 7</small></div>
+          <div class="score-stat-label">meditation days</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-num">${s.medMinAvg}<small>m</small></div>
+          <div class="score-stat-label">avg session</div>
+        </div>
+        <div class="score-stat" style="margin-bottom:0;">
+          <div class="score-num">${s.clearedDays}<small> / 7</small></div>
+          <div class="score-stat-label">mind cleared</div>
+        </div>
+        <div class="heatrow">
+          ${s.cells.map((c,i)=>`
+          <div class="heat-cell">
+            <div class="heat-day-label">${DAY_LABELS[i][0]}</div>
+            <div class="heat-box ${c.entry && c.entry.meditationDone ? 'done zen-med':''} ${c.entry && c.entry.mindfulnessDone ? 'zen-clear':''} ${c.isFuture?'future':''}"></div>
+            <div class="heat-steps">${c.entry && c.entry.meditationMinutes ? c.entry.meditationMinutes+'m' : '&middot;'}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+  }
+
   const goalMet = s.workouts >= WORKOUT_GOAL;
-  const pClass = idx===0?'p0':'p1';
   return `
     <div class="score-col ${pClass}">
       <div class="score-name">${userName}</div>
@@ -1044,21 +1548,22 @@ function renderScoreCol(userName, idx, wkStart, today){
     </div>`;
 }
 
+const PLAYER_COLORS = ['var(--p1)', 'var(--p2)', 'var(--zen-lavender)'];
 function renderRun(today){
   const info = appData.users.map(u=>currentRun(u, today));
   return `
     <div class="card">
       <div class="score-head">
         <h3>Goal streak</h3>
-        <span class="week-label">4+ workouts, back-to-back weeks</span>
+        <span class="week-label">4+ sessions, back-to-back weeks</span>
       </div>
       <div class="run-row">
         ${appData.users.map((u,i)=>`
           <div class="run-item">
-            <div class="run-num" style="color:${i===0?'var(--p1)':'var(--p2)'}">${info[i].hasData ? info[i].run : '&ndash;'}</div>
+            <div class="run-num" style="color:${PLAYER_COLORS[i]||'var(--text)'}">${info[i].hasData ? info[i].run : '&ndash;'}</div>
             <div class="run-label">${info[i].hasData ? `${u}'s streak` : `${u} \u2014 no data yet`}</div>
           </div>
-          ${i===0?'<div class="run-div"></div>':''}
+          ${i<appData.users.length-1?'<div class="run-div"></div>':''}
         `).join('')}
       </div>
     </div>`;
