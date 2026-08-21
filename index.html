@@ -93,40 +93,38 @@
   .primary-btn:disabled{opacity:.4;cursor:not-allowed;}
 
   /* VS player toggle */
-  .vs-row{display:flex;gap:10px;margin-bottom:20px;}
+  .vs-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
   .player-card{
-    flex:1;position:relative;padding:12px 10px 10px;border-radius:12px;border:2px solid var(--border);
+    flex:1 1 74px;min-width:74px;position:relative;padding:12px 8px 10px;border-radius:12px;border:2px solid var(--border);
     background:var(--surface);text-align:center;overflow:hidden;cursor:pointer;
     transition:border-color .25s ease, box-shadow .25s ease, transform .12s ease;
   }
   .player-card:active{transform:scale(.97);}
   .player-badge{
-    display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1.5px;
-    height:12px;margin-bottom:3px;color:transparent;
+    display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;
+    height:12px;margin-bottom:3px;color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .player-name{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:16px;color:var(--text-muted);transition:color .25s ease;}
+  .player-name{
+    font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:16px;color:var(--text-muted);
+    transition:color .25s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   .player-card.active .player-name{color:var(--text);}
-  .player-card.p0.active{border-color:var(--p1);box-shadow:0 0 14px rgba(255,92,61,.5), inset 0 0 18px rgba(255,92,61,.12);animation:player-pulse-p0 1.8s ease-in-out infinite;}
-  .player-card.p1.active{border-color:var(--p2);box-shadow:0 0 14px rgba(67,201,221,.5), inset 0 0 18px rgba(67,201,221,.12);animation:player-pulse-p1 1.8s ease-in-out infinite;}
-  @keyframes player-pulse-p0{0%,100%{background:var(--surface);}50%{background:#241a16;}}
-  @keyframes player-pulse-p1{0%,100%{background:var(--surface);}50%{background:#16232a;}}
-  .player-card.p0.active .player-badge{color:var(--p1);}
-  .player-card.p1.active .player-badge{color:var(--p2);}
-  .player-card.p2.active .player-badge{color:var(--zen-lavender);}
-  .player-card.p0.active .player-badge::before{content:'\25CF P1 \00b7 ACTIVE';}
-  .player-card.p1.active .player-badge::before{content:'\25CF P2 \00b7 ACTIVE';}
-  .player-card.p2.active .player-badge::before{content:'\25CF P3 \00b7 ZEN';}
-  .player-card.p2.active{
-    border-color:var(--zen-lavender);
-    box-shadow:0 0 14px rgba(168,153,230,.5), inset 0 0 18px rgba(168,153,230,.12);
-    animation:player-pulse-p2 1.8s ease-in-out infinite;
+  .player-card.active{
+    border-color:var(--pc);
+    box-shadow:0 0 14px var(--pc-dim), inset 0 0 18px var(--pc-dim2);
+    animation:player-pulse 1.8s ease-in-out infinite;
   }
-  @keyframes player-pulse-p2{0%,100%{background:var(--surface);}50%{background:#221e30;}}
+  @keyframes player-pulse{0%,100%{background:var(--surface);}50%{background:var(--pc-bg);}}
+  .player-card.active .player-badge{color:var(--pc);}
+  .player-card.active .player-badge::before{content:attr(data-badge);}
   .player-card.flash::after{
     content:'';position:absolute;inset:0;background:#fff;opacity:.55;
     animation:player-flash .3s ease-out forwards;
   }
   @keyframes player-flash{0%{opacity:.55;}100%{opacity:0;}}
+  .player-card.add-player{border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+  .player-card.add-player .plus{font-size:20px;color:var(--text-faint);line-height:1;}
+  .player-card.add-player .player-name{font-size:11px;color:var(--text-faint);}
   .aura-fade{
     position:fixed;inset:0;z-index:55;pointer-events:none;
     background:radial-gradient(ellipse at center, rgba(168,153,230,.2), rgba(78,205,196,.12) 55%, transparent 80%);
@@ -134,6 +132,31 @@
   }
   @keyframes aura-fade-anim{
     0%{opacity:0;} 25%{opacity:1;} 100%{opacity:0;}
+  }
+
+  /* view tabs (Today / Leaderboard) */
+  .view-tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .view-tab{
+    flex:1;padding:9px 10px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;
+    text-align:center;transition:.15s ease;
+  }
+  .view-tab.active{background:var(--accent-a);color:#14171a;border-color:var(--accent-a);}
+
+  /* component picker (add player / add component) */
+  .comp-picker{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .comp-check{
+    display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;font-size:14px;cursor:pointer;
+  }
+  .comp-check input{width:18px;height:18px;accent-color:var(--accent-a);flex-shrink:0;}
+  .ghost-btn{
+    background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:10px;
+    padding:13px 20px;font-size:14px;font-weight:600;width:100%;margin-top:8px;
+  }
+  .add-component-btn{
+    width:100%;background:none;border:1px dashed var(--border);color:var(--text-faint);
+    border-radius:10px;padding:10px;font-size:13px;margin:4px 0 16px;
   }
 
   /* today card */
@@ -399,30 +422,23 @@
   .score-head h3{margin:0;font-size:16px;}
   .week-label{font-size:12px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;}
   .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
-  .score-col{background:var(--surface-2);border-radius:12px;padding:16px;border:1px solid var(--border);}
-  .score-col.p0{border-top:3px solid var(--p1);}
-  .score-col.p1{border-top:3px solid var(--p2);}
-  .score-col.p2{border-top:3px solid var(--zen-lavender);}
+  .score-col{background:var(--surface-2);border-radius:12px;padding:16px;border:1px solid var(--border);border-top:3px solid var(--pc, var(--border));}
   .score-name{font-size:13px;font-weight:700;margin-bottom:14px;}
   .score-num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:34px;line-height:1;}
   .score-num small{font-family:'Inter';font-weight:600;font-size:14px;color:var(--text-muted);}
   .score-stat{margin-bottom:14px;}
   .score-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
   .goal-met{color:#7ed957;}
-  .goal-met-zen{color:var(--zen-teal);}
 
   .heatrow{display:flex;gap:5px;margin-top:14px;}
   .heat-cell{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;}
   .heat-day-label{font-size:9px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;}
   .heat-box{width:100%;aspect-ratio:1;border-radius:6px;border:1.5px solid var(--border);position:relative;}
-  .heat-box.done.p0{background:var(--p1);border-color:var(--p1);}
-  .heat-box.done.p1{background:var(--p2);border-color:var(--p2);}
-  .heat-box.done.zen-med{background:var(--zen-teal);border-color:var(--zen-teal);}
-  .heat-box.zen-clear::after{content:'';position:absolute;inset:2px;border:1.5px solid var(--zen-lavender);border-radius:4px;}
+  .heat-box.done{background:var(--pc, var(--border));border-color:var(--pc, var(--border));}
   .heat-box.future{opacity:.25;}
-  .meal-dots{display:flex;gap:3px;justify-content:center;margin-top:4px;}
-  .mdot{width:5px;height:5px;border-radius:50%;background:transparent;border:1px solid var(--border);}
-  .mdot.cheat{background:var(--cheat);border-color:var(--cheat);}
+  .comp-dots{display:flex;gap:3px;justify-content:center;margin-top:4px;flex-wrap:wrap;}
+  .comp-dot{width:5px;height:5px;border-radius:50%;background:transparent;border:1px solid var(--border);}
+  .comp-dot[data-on="1"]{background:var(--dot-color);border-color:var(--dot-color);}
   .heat-steps{font-size:8px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
 
   .run-row{display:flex;align-items:center;justify-content:space-around;margin-top:2px;}
@@ -486,15 +502,201 @@ const ROW_ID = 'shared';
 
 const STEP_GOAL = 10000;
 const STEPS_SLIDER_MAX = 15000;
-const WORKOUT_GOAL = 4; // days/week floor of the 4-5 target
-const MINDFUL_GOAL = 4; // sessions/week, mirrors WORKOUT_GOAL
+const WEEKLY_GOAL = 4; // days/week floor for "hit your target" stats and streaks
 
-function userType(name){ return (appData.userType && appData.userType[name]) || 'fitness'; }
+// ---------- component library ----------
+// Each component owns a slice of the entry object, its own card markup + widget wiring,
+// and how it contributes to weekly stats / the heatmap. Adding a new trackable thing means
+// adding one entry here — renderApp/renderScoreCol loop over whatever a user has picked.
+const COMPONENT_ORDER = ['workout','steps','meals','meditation','mindfulness'];
+const COMPONENTS = {
+  workout: {
+    id:'workout', label:'Workout', icon:'🏋️', color:'var(--lava)', zen:false,
+    defaultEntry:()=>({workout:false}),
+    dayDone:(e)=> !!(e && e.workout),
+    weekAgg:(cells)=>{
+      const count = cells.filter(c=>c.entry && c.entry.workout).length;
+      return [{value:count, suffix:'/5', label:'workouts', goalMet: count>=WEEKLY_GOAL}];
+    },
+    renderHtml:(e)=>`
+      <div class="row-label">Workout</div>
+      <div class="kb-rig" id="kbRig">
+        <div class="kb-track"></div>
+        <div class="kb-floor"></div>
+        <div class="kb-bell" id="kbBell"><div class="kb-handle"></div><div class="kb-ball"></div></div>
+        <div class="kb-stamp" id="kbStamp">CRUSHED</div>
+      </div>
+      <div class="lift-status" id="status-workout">${e.workout ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it'}</div>
+    `,
+    wire:(entry, patch)=>{
+      const statusEl = document.getElementById('status-workout');
+      setupKettlebell(document.getElementById('kbRig'), document.getElementById('kbBell'), document.getElementById('kbStamp'), entry.workout, (crushed)=>{
+        statusEl.textContent = crushed ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it';
+        patch({workout: crushed});
+      });
+    }
+  },
+  steps: {
+    id:'steps', label:'Steps', icon:'👟', color:'var(--neon-blue)', zen:false,
+    defaultEntry:()=>({steps:0}),
+    dayDone:(e)=> !!(e && typeof e.steps==='number' && e.steps>=STEP_GOAL),
+    dayMetric:(e)=> e && e.steps ? fmtSteps(e.steps) : null,
+    weekAgg:(cells)=>{
+      let sum=0, days=0;
+      cells.forEach(c=>{ if(c.entry && typeof c.entry.steps==='number' && c.entry.steps>0){ sum+=c.entry.steps; days++; } });
+      const avg = days ? Math.round(sum/days) : 0;
+      return [{value:fmtSteps(avg), suffix:'', label:'avg steps / day', goalMet: avg>=STEP_GOAL}];
+    },
+    renderHtml:(e)=>`
+      <div class="steps-row">
+        <div class="row-label">Steps</div>
+        <div class="steps-readout"><span id="stepsVal">0</span><span class="goal-chip">goal 10k</span></div>
+        <div class="run-track" id="runTrack">
+          <div class="run-track-fill" id="runFill"></div>
+          <div class="run-goal-mark" id="runGoalMark"></div>
+          <div class="run-figure" id="runFigure">🚶</div>
+        </div>
+        <div class="run-hint">Drag or tap the trail</div>
+      </div>
+    `,
+    wire:(entry, patch)=>{
+      setupStepsTrack(document.getElementById('runTrack'), document.getElementById('runFill'), document.getElementById('runFigure'), document.getElementById('runGoalMark'), Number(entry.steps)||0, (v)=>{
+        patch({steps:v});
+      });
+    }
+  },
+  meals: {
+    id:'meals', label:'Meals', icon:'🍽️', color:'var(--neon-amber)', zen:false,
+    defaultEntry:()=>({meals:{breakfast:false,lunch:false,dinner:false}}),
+    dayDone:(e)=> !!(e && e.meals && !e.meals.breakfast && !e.meals.lunch && !e.meals.dinner),
+    weekAgg:(cells)=>{
+      let cheat=0;
+      cells.forEach(c=>{ if(c.entry && c.entry.meals){ if(c.entry.meals.breakfast)cheat++; if(c.entry.meals.lunch)cheat++; if(c.entry.meals.dinner)cheat++; } });
+      return [{value:cheat, suffix:'/21', label:'cheat meals', goalMet:false}];
+    },
+    renderHtml:(e)=>{
+      const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
+      return `
+      <div class="meal-section">
+        <div class="row-label">Meals — swipe salad or fries</div>
+        ${['breakfast','lunch','dinner'].map(m=>`
+        <div class="meal-row">
+          <span>${m[0].toUpperCase()+m.slice(1)}</span>
+          <div class="tip-scale" id="tip-${m}" data-meal="${m}">
+            <span class="tip-icon tip-salad">🥗</span>
+            <div class="tip-bar"><div class="tip-pivot"></div></div>
+            <span class="tip-icon tip-fries">🍟</span>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    },
+    wire:(entry, patch)=>{
+      const mealsSafe = entry.meals || {breakfast:false,lunch:false,dinner:false};
+      const localMeals = {...mealsSafe};
+      ['breakfast','lunch','dinner'].forEach(m=>{
+        setupTipScale(document.getElementById('tip-'+m), mealsSafe[m], (cheat)=>{
+          localMeals[m] = cheat;
+          patch({meals:{...localMeals}});
+        });
+      });
+    }
+  },
+  meditation: {
+    id:'meditation', label:'Meditation', icon:'🧘', color:'var(--zen-teal)', zen:true,
+    defaultEntry:()=>({meditationDone:false}),
+    dayDone:(e)=> !!(e && e.meditationDone),
+    weekAgg:(cells)=>{
+      const count = cells.filter(c=>c.entry && c.entry.meditationDone).length;
+      return [{value:count, suffix:'/7', label:'meditation days', goalMet: count>=WEEKLY_GOAL}];
+    },
+    renderHtml:(e)=>`
+      <div class="row-label">Meditation</div>
+      <div class="orb-rig" id="orbRig">
+        <div class="water"></div>
+        <div class="orb" id="orb"></div>
+        <div class="orb-settled" id="orbSettled"><div class="lotus-row" id="lotusRow"></div></div>
+      </div>
+      <div class="lift-status" id="status-meditation">${e.meditationDone ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe'}</div>
+    `,
+    wire:(entry, patch)=>{
+      const statusEl = document.getElementById('status-meditation');
+      setupOrb(document.getElementById('orbRig'), document.getElementById('orb'), document.getElementById('orbSettled'), document.getElementById('lotusRow'), entry.meditationDone, (done)=>{
+        statusEl.textContent = done ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe';
+        patch({meditationDone: done});
+      });
+    }
+  },
+  mindfulness: {
+    id:'mindfulness', label:'Mindfulness', icon:'🌊', color:'var(--zen-lavender)', zen:true,
+    defaultEntry:()=>({mindfulnessDone:false}),
+    dayDone:(e)=> !!(e && e.mindfulnessDone),
+    weekAgg:(cells)=>{
+      const count = cells.filter(c=>c.entry && c.entry.mindfulnessDone).length;
+      return [{value:count, suffix:'/7', label:'mind cleared', goalMet:false}];
+    },
+    renderHtml:(e)=>`
+      <div class="row-label">Mindfulness — clear the field</div>
+      <div class="sand-tray" id="sandTray">
+        <div class="sand-rocks" id="sandRocks">
+          <span style="left:18%;top:32%;">🪨</span>
+          <span style="left:64%;top:58%;">🪨</span>
+          <span style="left:42%;top:74%;">🪨</span>
+          <span style="left:80%;top:28%;">🪨</span>
+          <span style="left:26%;top:62%;">🪨</span>
+        </div>
+        <svg class="rake-trail" id="rakeTrail"></svg>
+        <div class="zen-badge" id="zenBadge">MIND CLEARED</div>
+      </div>
+      <div class="lift-status" id="status-mindfulness">${e.mindfulnessDone ? 'Field cleared — tap to reset' : 'Swipe across the sand'}</div>
+    `,
+    wire:(entry, patch)=>{
+      const statusEl = document.getElementById('status-mindfulness');
+      setupSandRake(document.getElementById('sandTray'), document.getElementById('sandRocks'), document.getElementById('rakeTrail'), document.getElementById('zenBadge'), entry.mindfulnessDone, (done)=>{
+        statusEl.textContent = done ? 'Field cleared — tap to reset' : 'Swipe across the sand';
+        patch({mindfulnessDone: done});
+      });
+    }
+  }
+};
+function userComponents(name){ return (appData.userComponents && appData.userComponents[name]) || []; }
+function blankEntry(name){
+  const e = { note:'' };
+  userComponents(name).forEach(id=>{ if(COMPONENTS[id]) Object.assign(e, COMPONENTS[id].defaultEntry()); });
+  return e;
+}
+// one-time migration from the old single-bundle userType field to per-user component lists
+function migrateUserComponents(){
+  if(!appData.userComponents) appData.userComponents = {};
+  let changed = false;
+  appData.users.forEach(name=>{
+    if(!appData.userComponents[name]){
+      const t = appData.userType && appData.userType[name];
+      appData.userComponents[name] = t === 'mindfulness' ? ['meditation','mindfulness'] : ['workout','steps','meals'];
+      changed = true;
+    }
+  });
+  if(appData.userType){ delete appData.userType; changed = true; }
+  return changed;
+}
+
+// ---------- player identity colors ----------
+const PLAYER_THEMES = [
+  {color:'#ff5c3d', dim:'rgba(255,92,61,.5)',  dim2:'rgba(255,92,61,.12)',  bg:'#241a16'},
+  {color:'#43c9dd', dim:'rgba(67,201,221,.5)', dim2:'rgba(67,201,221,.12)', bg:'#16232a'},
+  {color:'#a899e6', dim:'rgba(168,153,230,.5)',dim2:'rgba(168,153,230,.12)',bg:'#221e30'},
+  {color:'#ffb020', dim:'rgba(255,176,32,.5)', dim2:'rgba(255,176,32,.12)', bg:'#2a2216'},
+  {color:'#39ff6a', dim:'rgba(57,255,106,.5)', dim2:'rgba(57,255,106,.12)', bg:'#16261c'},
+  {color:'#ff6fae', dim:'rgba(255,111,174,.5)',dim2:'rgba(255,111,174,.12)',bg:'#2a1622'}
+];
+function playerTheme(i){ return PLAYER_THEMES[i % PLAYER_THEMES.length]; }
 
 let appData = null;
 let currentUserIdx = 0;
 let selectedDate = new Date();
 let flashNextRender = false;
+let addingPerson = false;
+let editingComponentsFor = null;
+let activeTab = 'today';
 
 // ---------- date helpers ----------
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -569,57 +771,31 @@ function setEntry(userName, d, entry){
 }
 
 // ---------- stats ----------
-function weekStats(userName, weekStart, today){
-  const type = userType(userName);
-  const days = weekDates(weekStart);
-  if(type === 'mindfulness'){
-    let medDays=0, clearedDays=0;
-    const cells = days.map(d=>{
-      const isFuture = stripTime(d) > stripTime(today);
-      const e = isFuture ? null : entryFor(userName, d);
-      if(e){
-        if(e.meditationDone) medDays++;
-        if(e.mindfulnessDone) clearedDays++;
-      }
-      return {date:d, entry:e, isFuture};
-    });
-    return { type, medDays, clearedDays, cells };
-  }
-  let workouts=0, stepsSum=0, stepsDays=0, cheat=0;
-  const cells = days.map(d=>{
+function weekCellsFor(userName, weekStart, today){
+  return weekDates(weekStart).map(d=>{
     const isFuture = stripTime(d) > stripTime(today);
-    const e = isFuture ? null : entryFor(userName, d);
-    if(e){
-      if(e.workout) workouts++;
-      if(typeof e.steps === 'number' && e.steps>0){ stepsSum += e.steps; stepsDays++; }
-      if(e.meals){
-        if(e.meals.breakfast) cheat++;
-        if(e.meals.lunch) cheat++;
-        if(e.meals.dinner) cheat++;
-      }
-    }
-    return {date:d, entry:e, isFuture};
+    return { date:d, entry: isFuture ? null : entryFor(userName, d), isFuture };
   });
-  return {
-    type: 'fitness', workouts, stepsAvg: stepsDays ? Math.round(stepsSum/stepsDays) : 0,
-    cheat, cells
-  };
 }
-function weeklyGoalMet(stats){
-  return stats.type === 'mindfulness' ? stats.medDays >= MINDFUL_GOAL : stats.workouts >= WORKOUT_GOAL;
+// The goal streak is driven by the user's first (primary) component — whatever they
+// picked first counts as their "main" habit for streak purposes.
+function weeklyGoalMet(userName, cells){
+  const pid = userComponents(userName)[0];
+  if(!pid || !COMPONENTS[pid]) return false;
+  const count = cells.filter(c=>c.entry && COMPONENTS[pid].dayDone(c.entry)).length;
+  return count >= WEEKLY_GOAL;
 }
 function currentRun(userName, today){
   // consecutive completed weeks (before this week) hitting the weekly goal
   let ws = addDays(startOfWeek(today), -7);
-  const firstStats = weekStats(userName, ws, addDays(ws,6));
-  const hasData = firstStats.cells.some(c=>c.entry);
+  const firstCells = weekCellsFor(userName, ws, addDays(ws,6));
+  const hasData = firstCells.some(c=>c.entry);
   if(!hasData) return {run:0, hasData:false};
   let run = 0;
   while(true){
-    const stats = weekStats(userName, ws, addDays(ws,6));
-    const hasAnyData = stats.cells.some(c=>c.entry);
-    if(!hasAnyData) break;
-    if(weeklyGoalMet(stats)){ run++; ws = addDays(ws,-7); }
+    const cells = weekCellsFor(userName, ws, addDays(ws,6));
+    if(!cells.some(c=>c.entry)) break;
+    if(weeklyGoalMet(userName, cells)){ run++; ws = addDays(ws,-7); }
     else break;
   }
   return {run, hasData:true};
@@ -653,116 +829,110 @@ function renderSetup(){
     const n1 = u1.value.trim(), n2 = u2.value.trim();
     if(!n1 || !n2 || n1.toLowerCase()===n2.toLowerCase()) return;
     btn.disabled = true; btn.textContent = 'Setting up…';
-    appData = { users:[n1,n2], entries:{} };
+    appData = { users:[n1,n2], userComponents:{ [n1]:['workout','steps','meals'], [n2]:['workout','steps','meals'] }, entries:{} };
     await saveData();
     currentUserIdx = 0;
     renderApp();
   };
 }
 
+function playerCardsHtml(){
+  return `
+    <div class="vs-row">
+      ${appData.users.map((n,i)=>{
+        const t = playerTheme(i);
+        const comps = userComponents(n);
+        const isZen = COMPONENTS[comps[0]] && COMPONENTS[comps[0]].zen;
+        return `
+        <button class="player-card ${i===currentUserIdx?'active':''}" data-idx="${i}"
+          style="--pc:${t.color};--pc-dim:${t.dim};--pc-dim2:${t.dim2};--pc-bg:${t.bg};">
+          <span class="player-badge" data-badge="${isZen?'✦':'●'} P${i+1}"></span>
+          <span class="player-name">${n}</span>
+        </button>`;
+      }).join('')}
+      <button type="button" class="player-card add-player" id="addPlayerBtn">
+        <span class="plus">＋</span><span class="player-name">New</span>
+      </button>
+    </div>`;
+}
+
+function renderAddPerson(){
+  root.innerHTML = `
+    <h1 class="wordmark">STREAK</h1>
+    <p class="tagline">// add someone new to the board</p>
+    <div class="setup-card">
+      <h2>New player</h2>
+      <div class="field"><label>Name</label><input id="newName" placeholder="e.g. Sam" maxlength="20"/></div>
+      <div class="field">
+        <label>Track</label>
+        <div class="comp-picker">
+          ${COMPONENT_ORDER.map(id=>`
+            <label class="comp-check"><input type="checkbox" value="${id}"/><span>${COMPONENTS[id].icon} ${COMPONENTS[id].label}</span></label>
+          `).join('')}
+        </div>
+      </div>
+      <button class="primary-btn" id="createPlayerBtn">Create</button>
+      <button type="button" class="ghost-btn" id="cancelAddBtn">Cancel</button>
+    </div>`;
+  document.getElementById('cancelAddBtn').onclick = ()=>{ addingPerson = false; renderApp(); };
+  document.getElementById('createPlayerBtn').onclick = async ()=>{
+    const nameInput = document.getElementById('newName');
+    const name = nameInput.value.trim();
+    const checked = Array.from(document.querySelectorAll('.comp-check input:checked')).map(i=>i.value);
+    if(!name || appData.users.some(u=>u.toLowerCase()===name.toLowerCase()) || !checked.length) return;
+    appData.users.push(name);
+    appData.userComponents[name] = checked;
+    addingPerson = false;
+    currentUserIdx = appData.users.length - 1;
+    await saveData();
+    renderApp();
+  };
+}
+
 function renderApp(){
+  if(addingPerson){ renderAddPerson(); return; }
+
   const today = stripTime(new Date());
   const wkStart = startOfWeek(today);
   const minDate = wkStart, maxDate = today;
   const user = appData.users[currentUserIdx];
-  const type = userType(user);
-  root.classList.toggle('zen-mode', type === 'mindfulness');
+  const comps = userComponents(user);
+  const editing = editingComponentsFor === user;
+  root.classList.toggle('zen-mode', !editing && COMPONENTS[comps[0]] && COMPONENTS[comps[0]].zen);
 
   const isToday = dateKey(selectedDate) === dateKey(today);
   const dLabel = isToday ? 'Today' : selectedDate.toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
   const prevDisabled = stripTime(selectedDate) <= minDate;
   const nextDisabled = stripTime(selectedDate) >= maxDate;
 
-  const playersHtml = `
-    <div class="vs-row">
-      ${appData.users.map((n,i)=>`
-        <button class="player-card p${i} ${i===currentUserIdx?'active':''}" data-idx="${i}">
-          <span class="player-badge"></span>
-          <span class="player-name">${n}</span>
-        </button>`).join('')}
-    </div>`;
-  const footerHtml = `
-    ${renderScoreboard(wkStart, today)}
-    ${renderRun(today)}
-    <div class="legend">
-      ${appData.users.map((u,i)=>`<span><i style="background:${PLAYER_COLORS[i]||'var(--text-faint)'}"></i>${u}</span>`).join('')}
-      <span><i style="background:var(--cheat)"></i>cheat meal (dot = breakfast/lunch/dinner)</span>
-    </div>`;
+  const e = { ...blankEntry(user), ...(entryFor(user, selectedDate) || {}) };
 
-  let e, bodyHtml;
-  if(type === 'mindfulness'){
-    e = entryFor(user, selectedDate) || {meditationDone:false, mindfulnessDone:false, note:''};
-    bodyHtml = `
-      <div class="row-label">Meditation</div>
-      <div class="orb-rig" id="orbRig">
-        <div class="water"></div>
-        <div class="orb" id="orb"></div>
-        <div class="orb-settled" id="orbSettled">
-          <div class="lotus-row" id="lotusRow"></div>
-        </div>
-      </div>
-      <div class="lift-status" id="medStatus">${e.meditationDone ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe'}</div>
-
-      <div class="row-label" style="margin-top:4px;">Mindfulness — clear the field</div>
-      <div class="sand-tray" id="sandTray">
-        <div class="sand-rocks" id="sandRocks">
-          <span style="left:18%;top:32%;">🪨</span>
-          <span style="left:64%;top:58%;">🪨</span>
-          <span style="left:42%;top:74%;">🪨</span>
-          <span style="left:80%;top:28%;">🪨</span>
-          <span style="left:26%;top:62%;">🪨</span>
-        </div>
-        <svg class="rake-trail" id="rakeTrail"></svg>
-        <div class="zen-badge" id="zenBadge">MIND CLEARED</div>
-      </div>
-      <div class="lift-status" id="mindStatus">${e.mindfulnessDone ? 'Field cleared — tap to reset' : 'Swipe across the sand'}</div>
-    `;
+  let cardBodyHtml, cardFooterHtml;
+  if(editing){
+    cardBodyHtml = `
+      <div class="row-label">Choose what ${user} tracks</div>
+      <div class="comp-picker">
+        ${COMPONENT_ORDER.map(id=>`
+          <label class="comp-check"><input type="checkbox" value="${id}" ${comps.includes(id)?'checked':''}/><span>${COMPONENTS[id].icon} ${COMPONENTS[id].label}</span></label>
+        `).join('')}
+      </div>`;
+    cardFooterHtml = `
+      <div class="save-row">
+        <button class="primary-btn" id="saveComponentsBtn">Save components</button>
+        <button type="button" class="ghost-btn" id="cancelComponentsBtn">Cancel</button>
+      </div>`;
   }else{
-    e = entryFor(user, selectedDate) || {workout:false, steps:'', meals:{breakfast:false,lunch:false,dinner:false}, note:''};
-    const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
-    bodyHtml = `
-      <div class="row-label">Workout</div>
-      <div class="kb-rig" id="kbRig">
-        <div class="kb-track"></div>
-        <div class="kb-floor"></div>
-        <div class="kb-bell" id="kbBell">
-          <div class="kb-handle"></div>
-          <div class="kb-ball"></div>
-        </div>
-        <div class="kb-stamp" id="kbStamp">CRUSHED</div>
-      </div>
-      <div class="lift-status" id="liftStatus">${e.workout ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it'}</div>
-
-      <div class="steps-row">
-        <div class="row-label">Steps</div>
-        <div class="steps-readout"><span id="stepsVal">0</span><span class="goal-chip">goal 10k</span></div>
-        <div class="run-track" id="runTrack">
-          <div class="run-track-fill" id="runFill"></div>
-          <div class="run-goal-mark" id="runGoalMark"></div>
-          <div class="run-figure" id="runFigure">🚶</div>
-        </div>
-        <div class="run-hint">Drag or tap the trail</div>
-      </div>
-
-      <div class="meal-section">
-        <div class="row-label">Meals — swipe salad or fries</div>
-        ${['breakfast','lunch','dinner'].map(m=>`
-        <div class="meal-row">
-          <span>${m[0].toUpperCase()+m.slice(1)}</span>
-          <div class="tip-scale" id="tip-${m}" data-meal="${m}">
-            <span class="tip-icon tip-salad">🥗</span>
-            <div class="tip-bar"><div class="tip-pivot"></div></div>
-            <span class="tip-icon tip-fries">🍟</span>
-          </div>
-        </div>`).join('')}
-      </div>
-    `;
+    cardBodyHtml = comps.length
+      ? comps.map(id=>COMPONENTS[id].renderHtml(e)).join('')
+      : `<p style="color:var(--text-muted);font-size:14px;margin:0 0 16px;">Nothing set up yet — add a component below.</p>`;
+    cardBodyHtml += `<button type="button" class="add-component-btn" id="addComponentBtn">+ Add component</button>`;
+    cardFooterHtml = `
+      <div class="save-row">
+        <button class="primary-btn" id="saveBtn">Save ${dLabel.toLowerCase()}</button>
+      </div>`;
   }
 
-  root.innerHTML = `
-    <h1 class="wordmark">STREAK</h1>
-    <p class="tagline">// week of ${fmtWeekLabel(wkStart)}</p>
-    ${playersHtml}
+  const todayViewHtml = `
     <div class="card">
       <div class="card-head">
         <h3>Log for ${user}</h3>
@@ -772,30 +942,47 @@ function renderApp(){
           <button id="nextDay" ${nextDisabled?'disabled':''}>&rarr;</button>
         </div>
       </div>
-      ${bodyHtml}
-      <div class="save-row">
-        <button class="primary-btn" id="saveBtn">Save ${dLabel.toLowerCase()}</button>
-      </div>
+      ${cardBodyHtml}
+      ${cardFooterHtml}
+    </div>`;
+  const leaderboardViewHtml = `
+    ${renderScoreboard(wkStart, today)}
+    ${renderRun(today)}
+    <div class="legend">
+      ${appData.users.map((u,i)=>`<span><i style="background:${playerTheme(i).color}"></i>${u}</span>`).join('')}
+    </div>`;
+
+  root.innerHTML = `
+    <h1 class="wordmark">STREAK</h1>
+    <p class="tagline">// week of ${fmtWeekLabel(wkStart)}</p>
+    ${playerCardsHtml()}
+    <div class="view-tabs">
+      <button class="view-tab ${activeTab==='today'?'active':''}" data-tab="today">Today</button>
+      <button class="view-tab ${activeTab==='leaderboard'?'active':''}" data-tab="leaderboard">Leaderboard</button>
     </div>
-    ${footerHtml}
+    ${activeTab==='today' ? todayViewHtml : leaderboardViewHtml}
   `;
 
-  // wire up events common to both player types
-  document.querySelectorAll('.player-card').forEach(btn=>{
+  // wire up events common to every view
+  document.querySelectorAll('.player-card:not(.add-player)').forEach(btn=>{
     btn.onclick = ()=>{
       const idx = Number(btn.dataset.idx);
       if(idx === currentUserIdx) return;
       currentUserIdx = idx;
+      editingComponentsFor = null;
       flashNextRender = true;
-      if(userType(appData.users[idx]) === 'mindfulness'){
+      const nComps = userComponents(appData.users[idx]);
+      if(COMPONENTS[nComps[0]] && COMPONENTS[nComps[0]].zen){
         playChime();
         spawnAuraFade();
       }
       renderApp();
     };
   });
-  document.getElementById('prevDay').onclick = ()=>{ if(!prevDisabled){ selectedDate = addDays(selectedDate,-1); renderApp(); } };
-  document.getElementById('nextDay').onclick = ()=>{ if(!nextDisabled){ selectedDate = addDays(selectedDate,1); renderApp(); } };
+  document.getElementById('addPlayerBtn').onclick = ()=>{ addingPerson = true; renderApp(); };
+  document.querySelectorAll('.view-tab').forEach(btn=>{
+    btn.onclick = ()=>{ activeTab = btn.dataset.tab; renderApp(); };
+  });
   if(flashNextRender){
     const activeCard = document.querySelector('.player-card.active');
     if(activeCard){
@@ -805,71 +992,41 @@ function renderApp(){
     flashNextRender = false;
   }
 
-  if(type === 'mindfulness'){
-    let localMedDone = e.meditationDone, localMindDone = e.mindfulnessDone;
-    const medStatus = document.getElementById('medStatus');
-    const mindStatus = document.getElementById('mindStatus');
-    setupOrb(document.getElementById('orbRig'), document.getElementById('orb'), document.getElementById('orbSettled'),
-      document.getElementById('lotusRow'), localMedDone, (done)=>{
-        localMedDone = done;
-        medStatus.textContent = done ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe';
-      });
-    setupSandRake(document.getElementById('sandTray'), document.getElementById('sandRocks'),
-      document.getElementById('rakeTrail'), document.getElementById('zenBadge'), localMindDone, (done)=>{
-        localMindDone = done;
-        mindStatus.textContent = done ? 'Field cleared — tap to reset' : 'Swipe across the sand';
-      });
+  if(activeTab !== 'today') return;
 
-    document.getElementById('saveBtn').onclick = async (ev)=>{
-      const btn = ev.currentTarget;
-      setEntry(user, selectedDate, { meditationDone: localMedDone, mindfulnessDone: localMindDone, note: '' });
-      btn.disabled = true; btn.textContent = 'Saving…';
-      try{
-        await saveData();
-        if(localMedDone && localMindDone){
-          celebrateZen();
-          showToast(`🧘 Centered day, ${user}!`);
-        }else{
-          showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
-        }
-      }catch(err){
-        showToast('Save failed — try again');
-      }
+  document.getElementById('prevDay').onclick = ()=>{ if(!prevDisabled){ selectedDate = addDays(selectedDate,-1); renderApp(); } };
+  document.getElementById('nextDay').onclick = ()=>{ if(!nextDisabled){ selectedDate = addDays(selectedDate,1); renderApp(); } };
+
+  if(editing){
+    document.getElementById('cancelComponentsBtn').onclick = ()=>{ editingComponentsFor = null; renderApp(); };
+    document.getElementById('saveComponentsBtn').onclick = async ()=>{
+      const checked = Array.from(document.querySelectorAll('.comp-check input:checked')).map(i=>i.value);
+      appData.userComponents[user] = checked;
+      editingComponentsFor = null;
+      await saveData();
       renderApp();
     };
     return;
   }
 
-  const mealsSafe = e.meals || {breakfast:false,lunch:false,dinner:false};
-  let localWorkout = e.workout;
-  let localMeals = {...mealsSafe};
-  const liftStatus = document.getElementById('liftStatus');
-  setupKettlebell(document.getElementById('kbRig'), document.getElementById('kbBell'), document.getElementById('kbStamp'), localWorkout, (crushed)=>{
-    localWorkout = crushed;
-    liftStatus.textContent = crushed ? 'Crushed it — tap the stamp to undo' : 'Drag it down, or tap to drop it';
-  });
+  document.getElementById('addComponentBtn').onclick = ()=>{ editingComponentsFor = user; renderApp(); };
 
-  ['breakfast','lunch','dinner'].forEach(m=>{
-    setupTipScale(document.getElementById('tip-'+m), mealsSafe[m], (cheat)=>{
-      localMeals[m] = cheat;
-    });
-  });
-
-  let localSteps = Number(e.steps) || 0;
-  setupStepsTrack(document.getElementById('runTrack'), document.getElementById('runFill'), document.getElementById('runFigure'), document.getElementById('runGoalMark'), localSteps, (v)=>{
-    localSteps = v;
+  let localEntry = { ...e };
+  comps.forEach(id=>{
+    COMPONENTS[id].wire(localEntry, (patch)=>{ Object.assign(localEntry, patch); });
   });
 
   document.getElementById('saveBtn').onclick = async (ev)=>{
     const btn = ev.currentTarget;
-    setEntry(user, selectedDate, { workout: localWorkout, steps: localSteps, meals: localMeals, note: '' });
+    setEntry(user, selectedDate, { ...localEntry, note: '' });
     btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Saving…';
     try{
       await saveData();
-      const goalMet = localWorkout && localSteps >= STEP_GOAL && !localMeals.breakfast && !localMeals.lunch && !localMeals.dinner;
-      if(goalMet){
-        celebrate();
-        showToast(`🔥 Perfect day, ${user}!`);
+      const allDone = comps.length>0 && comps.every(id=>COMPONENTS[id].dayDone(localEntry));
+      if(allDone){
+        const zen = COMPONENTS[comps[0]] && COMPONENTS[comps[0]].zen;
+        if(zen){ celebrateZen(); showToast(`🧘 Centered day, ${user}!`); }
+        else{ celebrate(); showToast(`🔥 Perfect day, ${user}!`); }
       }else{
         showToast(`Saved ${user}'s ${isToday?'today':dLabel}`);
       }
@@ -1474,80 +1631,52 @@ function renderScoreboard(wkStart, today){
 }
 
 function renderScoreCol(userName, idx, wkStart, today){
-  const s = weekStats(userName, wkStart, today);
-  const pClass = 'p'+idx;
+  const cells = weekCellsFor(userName, wkStart, today);
+  const comps = userComponents(userName);
+  const t = playerTheme(idx);
+  const lines = [];
+  comps.forEach(id=>{ COMPONENTS[id].weekAgg(cells).forEach(l=>lines.push(l)); });
 
-  if(s.type === 'mindfulness'){
-    const goalMet = s.medDays >= MINDFUL_GOAL;
-    return `
-      <div class="score-col ${pClass}">
-        <div class="score-name">${userName}</div>
-        <div class="score-stat">
-          <div class="score-num ${goalMet?'goal-met-zen':''}">${s.medDays}<small> / 7</small></div>
-          <div class="score-stat-label">meditation days</div>
-        </div>
-        <div class="score-stat" style="margin-bottom:0;">
-          <div class="score-num">${s.clearedDays}<small> / 7</small></div>
-          <div class="score-stat-label">mind cleared</div>
-        </div>
-        <div class="heatrow">
-          ${s.cells.map((c,i)=>`
-          <div class="heat-cell">
-            <div class="heat-day-label">${DAY_LABELS[i][0]}</div>
-            <div class="heat-box ${c.entry && c.entry.meditationDone ? 'done zen-med':''} ${c.entry && c.entry.mindfulnessDone ? 'zen-clear':''} ${c.isFuture?'future':''}"></div>
-          </div>`).join('')}
-        </div>
-      </div>`;
-  }
-
-  const goalMet = s.workouts >= WORKOUT_GOAL;
   return `
-    <div class="score-col ${pClass}">
+    <div class="score-col" style="--pc:${t.color}">
       <div class="score-name">${userName}</div>
-      <div class="score-stat">
-        <div class="score-num ${goalMet?'goal-met':''}">${s.workouts}<small> / 5</small></div>
-        <div class="score-stat-label">workouts</div>
-      </div>
-      <div class="score-stat">
-        <div class="score-num ${s.stepsAvg>=STEP_GOAL?'goal-met':''}">${fmtSteps(s.stepsAvg)}</div>
-        <div class="score-stat-label">avg steps / day</div>
-      </div>
-      <div class="score-stat" style="margin-bottom:0;">
-        <div class="score-num">${s.cheat}<small> / 21</small></div>
-        <div class="score-stat-label">cheat meals</div>
-      </div>
+      ${lines.length ? lines.map((l,i)=>`
+        <div class="score-stat" ${i===lines.length-1?'style="margin-bottom:0;"':''}>
+          <div class="score-num ${l.goalMet?'goal-met':''}">${l.value}${l.suffix?`<small>${l.suffix}</small>`:''}</div>
+          <div class="score-stat-label">${l.label}</div>
+        </div>`).join('') : `<p style="color:var(--text-faint);font-size:12px;">nothing tracked yet</p>`}
       <div class="heatrow">
-        ${s.cells.map((c,i)=>{
-          const m = c.entry && c.entry.meals ? c.entry.meals : null;
+        ${cells.map((c,i)=>{
+          const primary = COMPONENTS[comps[0]];
+          const secondary = comps.slice(1);
+          const done = primary && c.entry ? primary.dayDone(c.entry) : false;
+          const metric = primary && primary.dayMetric && c.entry ? primary.dayMetric(c.entry) : null;
           return `
           <div class="heat-cell">
             <div class="heat-day-label">${DAY_LABELS[i][0]}</div>
-            <div class="heat-box ${c.entry && c.entry.workout ? 'done '+pClass : ''} ${c.isFuture?'future':''}"></div>
-            <div class="meal-dots">
-              <span class="mdot ${m && m.breakfast ? 'cheat':''}" title="Breakfast"></span>
-              <span class="mdot ${m && m.lunch ? 'cheat':''}" title="Lunch"></span>
-              <span class="mdot ${m && m.dinner ? 'cheat':''}" title="Dinner"></span>
-            </div>
-            <div class="heat-steps">${c.entry && c.entry.steps ? fmtSteps(c.entry.steps) : '&middot;'}</div>
+            <div class="heat-box ${done?'done':''} ${c.isFuture?'future':''}"></div>
+            ${secondary.length ? `<div class="comp-dots">
+              ${secondary.map(id=>`<span class="comp-dot" style="--dot-color:${COMPONENTS[id].color}" title="${COMPONENTS[id].label}" data-on="${c.entry && COMPONENTS[id].dayDone(c.entry) ? '1':'0'}"></span>`).join('')}
+            </div>` : ''}
+            <div class="heat-steps">${metric || '&middot;'}</div>
           </div>`;
         }).join('')}
       </div>
     </div>`;
 }
 
-const PLAYER_COLORS = ['var(--p1)', 'var(--p2)', 'var(--zen-lavender)'];
 function renderRun(today){
   const info = appData.users.map(u=>currentRun(u, today));
   return `
     <div class="card">
       <div class="score-head">
         <h3>Goal streak</h3>
-        <span class="week-label">4+ sessions, back-to-back weeks</span>
+        <span class="week-label">4+ days on your main habit, back-to-back weeks</span>
       </div>
       <div class="run-row">
         ${appData.users.map((u,i)=>`
           <div class="run-item">
-            <div class="run-num" style="color:${PLAYER_COLORS[i]||'var(--text)'}">${info[i].hasData ? info[i].run : '&ndash;'}</div>
+            <div class="run-num" style="color:${playerTheme(i).color}">${info[i].hasData ? info[i].run : '&ndash;'}</div>
             <div class="run-label">${info[i].hasData ? `${u}'s streak` : `${u} \u2014 no data yet`}</div>
           </div>
           ${i<appData.users.length-1?'<div class="run-div"></div>':''}
@@ -1568,8 +1697,9 @@ function renderRun(today){
     return;
   }
   appData = await loadData();
-  if(!appData){ renderSetup(); }
-  else{ renderApp(); }
+  if(!appData){ renderSetup(); return; }
+  if(migrateUserComponents()) await saveData();
+  renderApp();
 })();
 </script>
 </body>
