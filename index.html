@@ -176,6 +176,16 @@
     10%,90%{transform:translateY(-1px)} 20%,80%{transform:translateY(2px)}
     30%,50%,70%{transform:translateY(-3px)} 40%,60%{transform:translateY(3px)}
   }
+  .kb-shard{
+    position:fixed;border-radius:2px;pointer-events:none;z-index:81;
+    background:linear-gradient(160deg,#4a5058,#1c2024 75%);border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 0 6px 1px rgba(255,120,70,.35);
+    animation:kb-shard-fly .55s cubic-bezier(.25,.7,.5,1) forwards;
+  }
+  @keyframes kb-shard-fly{
+    0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1);}
+    100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.4);}
+  }
   .kb-handle{width:24px;height:15px;margin:0 auto;border:5px solid var(--text-muted);border-bottom:none;border-radius:14px 14px 0 0;}
   .kb-ball{
     width:48px;height:42px;margin-top:-2px;border-radius:48% 48% 44% 44%;
@@ -205,15 +215,15 @@
     box-shadow:0 0 14px 2px rgba(61,220,255,.55);}
   .run-goal-mark{position:absolute;top:0;bottom:0;width:2px;background:var(--text-faint);z-index:2;}
   .run-figure{
-    position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);font-size:26px;pointer-events:none;
+    position:absolute;top:50%;left:0%;transform:translate(-50%,-50%) scaleX(-1);font-size:26px;pointer-events:none;
     transition:filter .3s ease;
   }
   .run-figure.tier3{filter:drop-shadow(0 0 4px var(--neon-blue)) drop-shadow(0 0 9px var(--neon-blue));}
   .run-figure.bump{animation:run-bump .18s ease;}
   @keyframes run-bump{
-    0%{transform:translate(-50%,-50%) scale(1)}
-    50%{transform:translate(-50%,-50%) scale(1.25) translateY(-4px)}
-    100%{transform:translate(-50%,-50%) scale(1)}
+    0%{transform:translate(-50%,-50%) scaleX(-1) scale(1)}
+    50%{transform:translate(-50%,-50%) scaleX(-1) scale(1.25) translateY(-4px)}
+    100%{transform:translate(-50%,-50%) scaleX(-1) scale(1)}
   }
   .run-trail{
     position:absolute;top:50%;width:6px;height:6px;border-radius:50%;pointer-events:none;
@@ -663,6 +673,25 @@ function renderApp(){
 }
 
 // ---------- workout: kettlebell gravity drop (crashes at the bottom of the screen) ----------
+function kbShatter(x, y){
+  for(let i=0;i<14;i++){
+    const s = document.createElement('div');
+    s.className = 'kb-shard';
+    const size = 5 + Math.random()*7;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = (x - size/2) + 'px';
+    s.style.top = (y - size/2) + 'px';
+    const angle = Math.random()*Math.PI*2;
+    const dist = 22 + Math.random()*50;
+    s.style.setProperty('--dx', (Math.cos(angle)*dist) + 'px');
+    s.style.setProperty('--dy', (-Math.abs(Math.sin(angle))*dist*0.6 + Math.random()*20) + 'px');
+    s.style.setProperty('--rot', (Math.random()*480-240) + 'deg');
+    s.style.animationDelay = (Math.random()*0.05) + 's';
+    document.body.appendChild(s);
+    s.addEventListener('animationend', ()=>s.remove());
+  }
+}
 function setupKettlebell(rig, bell, stamp, initialCrushed, onChange){
   const TOP = 16;
   let crushed = !!initialCrushed;
@@ -701,11 +730,14 @@ function setupKettlebell(rig, bell, stamp, initialCrushed, onChange){
   }
 
   function impactAtBottom(){
+    const r = bell.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height*0.4;
     bell.classList.remove('launching');
     bell.classList.add('hidden');
     resetBellStyle();
 
     haptic('heavy');
+    kbShatter(cx, cy);
     const flash = document.createElement('div');
     flash.className = 'screen-crash';
     document.body.appendChild(flash);
