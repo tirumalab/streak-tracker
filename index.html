@@ -342,11 +342,7 @@
   }
   .orb-settled.show{display:flex;animation:zen-fade-in .4s ease;}
   @keyframes zen-fade-in{0%{opacity:0;}100%{opacity:1;}}
-  .lotus-row{display:flex;gap:6px;font-size:20px;filter:drop-shadow(0 0 6px rgba(78,205,196,.6));}
-  .med-minutes{
-    font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;
-    color:var(--zen-teal);text-shadow:0 0 8px rgba(78,205,196,.6);
-  }
+  .lotus-row{display:flex;gap:6px;font-size:34px;filter:drop-shadow(0 0 8px rgba(78,205,196,.6));}
 
   /* mindfulness: zen garden rake */
   .sand-tray{
@@ -577,17 +573,17 @@ function weekStats(userName, weekStart, today){
   const type = userType(userName);
   const days = weekDates(weekStart);
   if(type === 'mindfulness'){
-    let medDays=0, medMinSum=0, clearedDays=0;
+    let medDays=0, clearedDays=0;
     const cells = days.map(d=>{
       const isFuture = stripTime(d) > stripTime(today);
       const e = isFuture ? null : entryFor(userName, d);
       if(e){
-        if(e.meditationDone){ medDays++; medMinSum += (e.meditationMinutes||0); }
+        if(e.meditationDone) medDays++;
         if(e.mindfulnessDone) clearedDays++;
       }
       return {date:d, entry:e, isFuture};
     });
-    return { type, medDays, medMinAvg: medDays ? Math.round(medMinSum/medDays) : 0, clearedDays, cells };
+    return { type, medDays, clearedDays, cells };
   }
   let workouts=0, stepsSum=0, stepsDays=0, cheat=0;
   const cells = days.map(d=>{
@@ -695,7 +691,7 @@ function renderApp(){
 
   let e, bodyHtml;
   if(type === 'mindfulness'){
-    e = entryFor(user, selectedDate) || {meditationDone:false, meditationMinutes:0, mindfulnessDone:false, note:''};
+    e = entryFor(user, selectedDate) || {meditationDone:false, mindfulnessDone:false, note:''};
     bodyHtml = `
       <div class="row-label">Meditation</div>
       <div class="orb-rig" id="orbRig">
@@ -703,7 +699,6 @@ function renderApp(){
         <div class="orb" id="orb"></div>
         <div class="orb-settled" id="orbSettled">
           <div class="lotus-row" id="lotusRow"></div>
-          <div class="med-minutes" id="medMinutesLabel"></div>
         </div>
       </div>
       <div class="lift-status" id="medStatus">${e.meditationDone ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe'}</div>
@@ -811,13 +806,12 @@ function renderApp(){
   }
 
   if(type === 'mindfulness'){
-    let localMedDone = e.meditationDone, localMedMinutes = e.meditationMinutes || 0, localMindDone = e.mindfulnessDone;
+    let localMedDone = e.meditationDone, localMindDone = e.mindfulnessDone;
     const medStatus = document.getElementById('medStatus');
     const mindStatus = document.getElementById('mindStatus');
     setupOrb(document.getElementById('orbRig'), document.getElementById('orb'), document.getElementById('orbSettled'),
-      document.getElementById('lotusRow'), document.getElementById('medMinutesLabel'),
-      {done: localMedDone, minutes: localMedMinutes}, (done, minutes)=>{
-        localMedDone = done; localMedMinutes = minutes;
+      document.getElementById('lotusRow'), localMedDone, (done)=>{
+        localMedDone = done;
         medStatus.textContent = done ? 'Session logged — tap the water to undo' : 'Press & hold the orb to breathe';
       });
     setupSandRake(document.getElementById('sandTray'), document.getElementById('sandRocks'),
@@ -828,7 +822,7 @@ function renderApp(){
 
     document.getElementById('saveBtn').onclick = async (ev)=>{
       const btn = ev.currentTarget;
-      setEntry(user, selectedDate, { meditationDone: localMedDone, meditationMinutes: localMedMinutes, mindfulnessDone: localMindDone, note: '' });
+      setEntry(user, selectedDate, { meditationDone: localMedDone, mindfulnessDone: localMindDone, note: '' });
       btn.disabled = true; btn.textContent = 'Saving…';
       try{
         await saveData();
@@ -1241,9 +1235,9 @@ function createRipple(rig, delay){
   rig.appendChild(r);
   r.addEventListener('animationend', ()=>r.remove());
 }
-function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
-  let done = !!initial.done;
-  let minutes = initial.minutes || 0;
+const ORB_HOLD_MS = 900; // how long counts as a "long tap"
+function setupOrb(rig, orb, settled, lotusRow, initialDone, onChange){
+  let done = !!initialDone;
 
   function idleVisual(){
     orb.classList.remove('hidden','charging');
@@ -1253,8 +1247,7 @@ function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
   function settledVisual(){
     orb.classList.add('hidden');
     orb.style.transform = '';
-    lotusRow.textContent = '🪷'.repeat(Math.max(1, Math.min(5, Math.ceil(minutes/3))));
-    minutesLabel.textContent = minutes + ' min';
+    lotusRow.textContent = '🪷';
     settled.classList.add('show');
   }
   (done ? settledVisual : idleVisual)();
@@ -1262,7 +1255,7 @@ function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
   let holding = false, startTime = 0, rafId = null, tone = null, hapticTimer = null;
   function tick(){
     if(!holding) return;
-    const ratio = Math.min(1, (performance.now() - startTime) / 1800);
+    const ratio = Math.min(1, (performance.now() - startTime) / ORB_HOLD_MS);
     orb.style.transform = `scale(${1 + ratio*0.7})`;
     if(tone) tone.osc.frequency.value = 180 + ratio*140;
     rafId = requestAnimationFrame(tick);
@@ -1288,9 +1281,8 @@ function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
     const heldMs = performance.now() - startTime;
     orb.classList.remove('charging');
     orb.style.transform = '';
-    if(heldMs < 400) return; // too brief — resets to idle bob, no session logged
+    if(heldMs < ORB_HOLD_MS) return; // too brief — resets to idle bob, no session logged
 
-    minutes = Math.max(1, Math.min(15, Math.round(heldMs / 400)));
     haptic('medium');
     orb.classList.add('hidden');
     createRipple(rig, 0);
@@ -1299,7 +1291,7 @@ function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
     setTimeout(()=>{
       done = true;
       settledVisual();
-      onChange(true, minutes);
+      onChange(true);
     }, 420);
   }
   orb.addEventListener('pointerup', release);
@@ -1312,7 +1304,7 @@ function setupOrb(rig, orb, settled, lotusRow, minutesLabel, initial, onChange){
     settled.classList.remove('show');
     done = false;
     idleVisual();
-    onChange(false, minutes);
+    onChange(false);
   });
 }
 
@@ -1494,10 +1486,6 @@ function renderScoreCol(userName, idx, wkStart, today){
           <div class="score-num ${goalMet?'goal-met-zen':''}">${s.medDays}<small> / 7</small></div>
           <div class="score-stat-label">meditation days</div>
         </div>
-        <div class="score-stat">
-          <div class="score-num">${s.medMinAvg}<small>m</small></div>
-          <div class="score-stat-label">avg session</div>
-        </div>
         <div class="score-stat" style="margin-bottom:0;">
           <div class="score-num">${s.clearedDays}<small> / 7</small></div>
           <div class="score-stat-label">mind cleared</div>
@@ -1507,7 +1495,6 @@ function renderScoreCol(userName, idx, wkStart, today){
           <div class="heat-cell">
             <div class="heat-day-label">${DAY_LABELS[i][0]}</div>
             <div class="heat-box ${c.entry && c.entry.meditationDone ? 'done zen-med':''} ${c.entry && c.entry.mindfulnessDone ? 'zen-clear':''} ${c.isFuture?'future':''}"></div>
-            <div class="heat-steps">${c.entry && c.entry.meditationMinutes ? c.entry.meditationMinutes+'m' : '&middot;'}</div>
           </div>`).join('')}
         </div>
       </div>`;
